@@ -3,142 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meetu</title>
+    <title>Meetu - Video Call</title>
     
-    <!-- Google Fonts theke Poppins add kora holo -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts & Material Symbols for authentic Google Meet icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
     
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
-        /* Font family update kora holo */
-        body { font-family: 'Poppins', sans-serif; text-align: center; background: #1e1e1e; color: white; padding: 20px; margin: 0; }
-        .container { background: #2d2d2d; padding: 20px; border-radius: 10px; max-width: 800px; margin: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        body { font-family: 'Poppins', sans-serif; text-align: center; background: #202124; color: white; padding: 20px; margin: 0; overflow-x: hidden; }
+        .container { background: #202124; padding: 20px; max-width: 900px; margin: auto; }
         
-        /* Buttons: Font inherit kora holo jate Poppins pay */
-        button { font-family: 'Poppins', sans-serif; padding: 5px 10px; margin: 5px; cursor: pointer; border: none; border-radius: 0; font-weight: 600; font-size: 12px; transition: 0.3s; }
-        button:hover { opacity: 0.8; }
-        .btn-blue { background: #0b5ed7; color: white; }
-        .btn-green { background: #198754; color: white; }
-        .btn-red { background: #dc3545; color: white; }
-        .btn-gray { background: #6c757d; color: white; }
+        button { font-family: 'Poppins', sans-serif; cursor: pointer; border: none; font-weight: 500; transition: all 0.2s ease; }
+        button:hover { filter: brightness(1.2); }
         
-        /* Square Control Buttons */
-        .btn-square { width: 45px; height: 45px; display: inline-flex; align-items: center; justify-content: center; padding: 0; font-size: 18px; border-radius: 0; }
+        .btn-blue { background-color: #8ab4f8; color: #202124; padding: 10px 20px; border-radius: 4px; font-weight: 600; }
+        .btn-green { background-color: #81c995; color: #202124; padding: 10px 20px; border-radius: 4px; font-weight: 600; }
+        .btn-red { background-color: #ea4335; color: white; padding: 10px 20px; border-radius: 4px; }
         
-        /* Circular End Call Button */
-        .btn-end-circle { font-family: 'Poppins', sans-serif; width: 45px; height: 45px; border-radius: 50%; background: #dc3545; color: white; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 2px solid #fff; }
+        /* Meet Style Solid Control Buttons */
+        .meet-btn { 
+            width: 48px; 
+            height: 48px; 
+            border-radius: 50%; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 0; 
+            background-color: #3c4043; /* Meet Dark Gray */
+            color: white;
+            border: none;
+        }
+        .meet-btn.off { background-color: #ea4335; } /* Meet Red */
+        .meet-btn.active { background-color: #8ab4f8; color: #202124; } /* Meet Active Blue */
         
-        input { font-family: 'Poppins', sans-serif; padding: 8px; width: 85%; margin: 10px 0; border-radius: 0; border: 1px solid #555; background: #111; color: #fff; text-align: center; font-size: 12px; }
-        
-        #status { color: #ffc107; margin: 10px 0; font-size: 14px; font-weight: 600; }
-        #controlsPanel { display: none; margin-top: 15px; padding: 10px; background: #222; border-radius: 0; display: flex; justify-content: center; align-items: center; gap: 10px; }
-        
-        /* Video Section Styling */
-        .video-wrapper { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-top: 20px; display: none; }
-        .video-box { position: relative; background: #000; border: 2px solid #444; border-radius: 0; overflow: hidden; }
-        .local-box { width: 250px; height: 180px; }
-        .remote-box { width: 100%; max-width: 600px; height: auto; display: none; }
-        video { width: 100%; height: 100%; object-fit: cover; }
-        .label { position: absolute; bottom: 5px; left: 5px; background: rgba(0,0,0,0.7); color: white; padding: 3px 8px; font-size: 10px; }
+        .btn-end { background-color: #ea4335; width: 60px; border-radius: 24px; }
+        .btn-end:hover { background-color: #d93025; }
 
-        /* Modal / Popup Styling */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-content { background: #333; padding: 20px; border: 1px solid #555; text-align: center; width: 300px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
-        .modal-content h3 { margin-top: 0; color: #0dcaf0; }
-        .modal-buttons { margin-top: 15px; display: flex; justify-content: center; gap: 10px; }
-        .modal-buttons button { padding: 8px 15px; font-size: 13px; }
+        .material-symbols-outlined { font-size: 22px; font-variation-settings: 'FILL' 1; }
+        
+        input.meet-input { font-family: 'Poppins', sans-serif; padding: 12px; width: 80%; max-width: 300px; margin: 10px 0; border-radius: 4px; border: 1px solid #5f6368; background: #202124; color: #e8eaed; text-align: center; font-size: 14px; }
+        input.meet-input:focus { outline: 2px solid #8ab4f8; border-color: transparent; }
+        
+        #status { color: #8ab4f8; margin: 10px 0; font-size: 14px; }
+        
+        /* Bottom Control Bar */
+        #controlsPanel { display: none; margin-top: 20px; padding: 15px; background: #202124; display: flex; justify-content: center; align-items: center; gap: 12px; }
+        
+        /* Video Section */
+        .video-wrapper { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-top: 10px; display: none; }
+        .video-box { position: relative; background: #3c4043; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+        .local-box { width: 300px; height: 200px; }
+        .remote-box { width: 100%; max-width: 700px; height: auto; display: none; }
+        video { width: 100%; height: 100%; object-fit: cover; }
+        
+        /* Name Labels on Video */
+        .label { position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,0.6); color: #fff; padding: 5px 10px; font-size: 12px; border-radius: 4px; display: flex; align-items: center; gap: 5px; }
+
+        /* Custom Modals (No Alerts) */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: #2b2b36; padding: 25px; border-radius: 8px; text-align: center; width: 320px; color: white; }
+        .modal-content h3 { margin-top: 0; font-weight: 500; }
+        .modal-buttons { margin-top: 20px; display: flex; justify-content: center; gap: 10px; }
+        
+        /* Toast Notification */
+        #toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #3c4043; color: white; padding: 10px 20px; border-radius: 4px; font-size: 13px; display: none; z-index: 2000; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+        
+        .setup-panel { background: #3c4043; padding: 30px; border-radius: 8px; display: inline-block; margin-top: 20px; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>🌐 Meetu</h2>
-        <div id="status">System is getting ready...</div>
-        
-        <!-- Host Setup Panel -->
-        <div id="hostPanel" style="display:none;">
-            <button class="btn-blue" id="setupBtn" onclick="startSetupFlow('host')">Configure Media & Start</button>
+        <!-- Setup Screens -->
+        <div id="setupContainer" class="setup-panel">
+            <h2 style="margin-top:0; font-weight:500;">Welcome to Meetu</h2>
+            <div id="status">Please enter your name to continue</div>
             
-            <div id="linkSetupPanel" style="display:none; margin-top:15px;">
-                <button class="btn-green" onclick="generateLink()">Generate Meeting Link</button><br>
-                <input type="text" id="inviteLink" readonly placeholder="Link will appear here..." onclick="this.select()">
+            <input type="text" id="userNameInput" class="meet-input" placeholder="Your Name (e.g. Sabibur)">
+            
+            <div id="hostActions" style="display:none; margin-top:15px;">
+                <button class="btn-blue" onclick="startSetupFlow('host')">New Meeting</button>
             </div>
-        </div>
 
-        <!-- Guest Setup Panel -->
-        <div id="guestPanel" style="display:none;">
-            <button class="btn-blue" id="guestSetupBtn" onclick="startSetupFlow('guest')">Configure Media to Join</button>
-            <button class="btn-green" id="joinBtn" style="display:none;" onclick="requestJoin()">Request to Join</button>
-        </div>
-
-        <!-- Meet Controls (For Both) -->
-        <div id="controlsWrapper" style="display:none;">
-            <div id="controlsPanel">
-                <button class="btn-square btn-gray" id="micBtn" onclick="toggleMic()" title="Mic On">🎤</button>
-                <button class="btn-square btn-gray" id="camBtn" onclick="toggleCam()" title="Cam On">📷</button>
-                <button class="btn-square btn-blue" id="screenBtn" onclick="toggleScreen()" title="Share Screen">💻</button>
-                <button class="btn-end-circle" onclick="endCall()" title="End Call">📞</button>
+            <div id="guestActions" style="display:none; margin-top:15px;">
+                <button class="btn-green" onclick="startSetupFlow('guest')">Join Meeting</button>
+            </div>
+            
+            <div id="linkSetupPanel" style="display:none; margin-top:20px; border-top: 1px solid #5f6368; padding-top:20px;">
+                <p style="font-size:13px; color:#9aa0a6;">Share this link with your guest:</p>
+                <input type="text" id="inviteLink" class="meet-input" readonly onclick="this.select()">
+                <br>
+                <button class="btn-blue" style="margin-top:10px;" onclick="copyLink()">Copy Link</button>
             </div>
         </div>
 
         <!-- Video Containers -->
         <div class="video-wrapper" id="videoWrapper">
-            <div class="video-box local-box">
-                <video id="localVideo" autoplay playsinline muted></video>
-                <div class="label" id="localLabel">Local (You)</div>
-            </div>
-            
             <div class="video-box remote-box" id="remoteBox">
                 <video id="remoteVideo" autoplay playsinline></video>
-                <div class="label" id="remoteLabel">Partner</div>
+                <div class="label"><span class="material-symbols-outlined" style="font-size:16px;">account_circle</span> <span id="remoteLabel">Partner</span></div>
             </div>
+            
+            <div class="video-box local-box" id="localBox">
+                <video id="localVideo" autoplay playsinline muted></video>
+                <div class="label"><span class="material-symbols-outlined" style="font-size:16px;">account_circle</span> <span id="localLabel">You</span></div>
+            </div>
+        </div>
+        
+        <!-- Google Meet Style Controls Bar -->
+        <div id="controlsPanel">
+            <button class="meet-btn off" id="micBtn" onclick="toggleMic()" title="Toggle Microphone">
+                <span class="material-symbols-outlined" id="micIcon">mic_off</span>
+            </button>
+            <button class="meet-btn off" id="camBtn" onclick="toggleCam()" title="Toggle Camera">
+                <span class="material-symbols-outlined" id="camIcon">videocam_off</span>
+            </button>
+            <button class="meet-btn" id="screenBtn" onclick="toggleScreen()" title="Share Screen">
+                <span class="material-symbols-outlined" id="screenIcon">present_to_all</span>
+            </button>
+            <button class="meet-btn" id="recordBtn" onclick="toggleRecord()" title="Record Session">
+                <span class="material-symbols-outlined">radio_button_checked</span>
+            </button>
+            <button class="meet-btn btn-end" onclick="endCall()" title="Leave call">
+                <span class="material-symbols-outlined">call_end</span>
+            </button>
         </div>
     </div>
 
-    <!-- 2-Step Setup Modal -->
+    <!-- Modals -->
     <div id="setupModal" class="modal-overlay">
         <div class="modal-content">
             <h3 id="modalTitle">Camera Setup</h3>
-            <p id="modalDesc">Do you want to join with your camera turned on?</p>
+            <p id="modalDesc">Join with camera on?</p>
             <div class="modal-buttons">
-                <button onclick="handleSetupChoice(true)" class="btn-green">Yes, Turn On</button>
-                <button onclick="handleSetupChoice(false)" class="btn-red">No, Keep Off</button>
+                <button onclick="handleSetupChoice(true)" class="btn-blue">Yes</button>
+                <button onclick="handleSetupChoice(false)" class="btn-red" style="background:transparent; border:1px solid #ea4335; color:#ea4335;">No, Keep Off</button>
             </div>
         </div>
     </div>
 
+    <div id="admitModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Someone wants to join</h3>
+            <p><span id="guestNameText" style="font-weight:bold; color:#8ab4f8;">Someone</span> is requesting to join the call.</p>
+            <div class="modal-buttons">
+                <button onclick="handleAdmit(true)" class="btn-blue">Admit</button>
+                <button onclick="handleAdmit(false)" class="btn-red">Deny</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast">Message</div>
+
     <script>
-        const peer = new Peer({
-            config: { 'iceServers': [ { urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' } ] }
-        });
+        const peer = new Peer({ config: { 'iceServers': [ { urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' } ] } });
 
         let localStream, currentCall, connectedPartnerId = null;
         let isMicOn = false, isCamOn = false, isScreenSharing = false; 
-        let userRole = 'host';
+        let hasRealMic = false, hasRealCam = false; 
         
-        let setupStage = 0; // 0 = cam, 1 = mic
+        let userRole = 'host';
+        let myName = 'Host';
+        let partnerName = 'Guest';
+        let setupStage = 0; 
         let userChoices = { cam: false, mic: false };
-        let currentUserRoleFlow = '';
+        let pendingConnection = null;
+        
+        // Recording Variables
+        let mediaRecorder;
+        let recordedChunks = [];
 
         const urlParams = new URLSearchParams(window.location.search);
         const hostIdFromUrl = urlParams.get('room');
 
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 3000);
+        }
+
         peer.on('open', id => {
             if(hostIdFromUrl) {
                 userRole = 'guest';
-                document.getElementById('guestPanel').style.display = 'block';
-                document.getElementById('status').innerText = "You are a Guest. Please configure your media.";
+                document.getElementById('guestActions').style.display = 'block';
             } else {
-                document.getElementById('hostPanel').style.display = 'block';
-                document.getElementById('status').innerText = "You are the Host. Please configure your media.";
+                document.getElementById('hostActions').style.display = 'block';
             }
         });
 
-        // ==========================
-        // 2-Step Modal Setup Flow
-        // ==========================
         function startSetupFlow(role) {
-            currentUserRoleFlow = role;
+            const nameInp = document.getElementById('userNameInput').value.trim();
+            if(nameInp) myName = nameInp;
+            document.getElementById('localLabel').innerText = myName + " (You)";
+            
             setupStage = 0;
             document.getElementById('setupModal').style.display = 'flex';
             updateModalUI();
@@ -146,10 +205,10 @@
 
         function updateModalUI() {
             if(setupStage === 0) {
-                document.getElementById('modalTitle').innerText = "📸 Camera Setup";
+                document.getElementById('modalTitle').innerText = "Camera Setup";
                 document.getElementById('modalDesc').innerText = "Do you want to start with your camera on?";
             } else if(setupStage === 1) {
-                document.getElementById('modalTitle').innerText = "🎤 Microphone Setup";
+                document.getElementById('modalTitle').innerText = "Microphone Setup";
                 document.getElementById('modalDesc').innerText = "Do you want to start with your microphone on?";
             }
         }
@@ -166,88 +225,123 @@
             }
         }
 
-        // ==========================
-        // Apply Initial Media Setup
-        // ==========================
+        function getSilentAudioTrack() {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const dst = ctx.createMediaStreamDestination();
+            return dst.stream.getAudioTracks()[0];
+        }
+
+        function getBlankVideoTrack() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 640; canvas.height = 480;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#202124';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            return canvas.captureStream(1).getVideoTracks()[0];
+        }
+
         async function finalizeMediaSetup() {
-            try {
-                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                
-                isCamOn = userChoices.cam;
-                isMicOn = userChoices.mic;
+            localStream = new MediaStream();
 
-                localStream.getVideoTracks()[0].enabled = isCamOn;
-                localStream.getAudioTracks()[0].enabled = isMicOn; 
-                
-                const localVideo = document.getElementById('localVideo');
-                localVideo.srcObject = localStream;
-                document.getElementById('videoWrapper').style.display = 'flex';
-                document.getElementById('controlsWrapper').style.display = 'block';
+            if (userChoices.cam) {
+                try {
+                    const vStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    localStream.addTrack(vStream.getVideoTracks()[0]);
+                    hasRealCam = true; isCamOn = true;
+                } catch(e) { localStream.addTrack(getBlankVideoTrack()); showToast("Camera blocked"); }
+            } else { localStream.addTrack(getBlankVideoTrack()); }
 
-                updateControlButtonsUI();
+            if (userChoices.mic) {
+                try {
+                    const aStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+                    localStream.addTrack(aStream.getAudioTracks()[0]);
+                    hasRealMic = true; isMicOn = true;
+                } catch(e) { localStream.addTrack(getSilentAudioTrack()); showToast("Mic blocked"); }
+            } else { localStream.addTrack(getSilentAudioTrack()); }
 
-                if(currentUserRoleFlow === 'host') {
-                    document.getElementById('setupBtn').style.display = 'none';
-                    document.getElementById('linkSetupPanel').style.display = 'block';
-                    document.getElementById('status').innerText = "Media configured. Generate a link to invite.";
-                } else {
-                    document.getElementById('guestSetupBtn').style.display = 'none';
-                    document.getElementById('joinBtn').style.display = 'inline-block';
-                    document.getElementById('status').innerText = "Media configured. You can now request to join.";
-                }
-            } catch(e) {
-                alert("Camera or Microphone permission denied. Please check browser settings.");
+            document.getElementById('localVideo').srcObject = localStream;
+            document.getElementById('videoWrapper').style.display = 'flex';
+            document.getElementById('controlsPanel').style.display = 'flex';
+            updateControlButtonsUI();
+
+            if(userRole === 'host') {
+                document.getElementById('hostActions').style.display = 'none';
+                document.getElementById('linkSetupPanel').style.display = 'block';
+                const link = window.location.origin + window.location.pathname + "?room=" + peer.id;
+                document.getElementById('inviteLink').value = link;
+                document.getElementById('status').innerText = "Waiting for guest to join...";
+            } else {
+                requestJoin();
             }
+        }
+
+        function copyLink() {
+            const link = document.getElementById('inviteLink');
+            link.select();
+            document.execCommand('copy');
+            showToast("Meeting link copied to clipboard");
         }
 
         function updateControlButtonsUI() {
             const micBtn = document.getElementById('micBtn');
-            micBtn.innerText = isMicOn ? "🎤" : "🔇";
-            micBtn.title = isMicOn ? "Mic On" : "Mic Off";
-            micBtn.className = isMicOn ? "btn-square btn-gray" : "btn-square btn-red";
+            const micIcon = document.getElementById('micIcon');
+            if(isMicOn) { micBtn.className = 'meet-btn'; micIcon.innerText = 'mic'; } 
+            else { micBtn.className = 'meet-btn off'; micIcon.innerText = 'mic_off'; }
             
             const camBtn = document.getElementById('camBtn');
-            camBtn.innerText = isCamOn ? "📷" : "🚫";
-            camBtn.title = isCamOn ? "Cam On" : "Cam Off";
-            camBtn.className = isCamOn ? "btn-square btn-gray" : "btn-square btn-red";
+            const camIcon = document.getElementById('camIcon');
+            if(isCamOn) { camBtn.className = 'meet-btn'; camIcon.innerText = 'videocam'; } 
+            else { camBtn.className = 'meet-btn off'; camIcon.innerText = 'videocam_off'; }
         }
 
-        // ==========================
-        // Connection Logic
-        // ==========================
-        
+        // Host side connection handling
         peer.on('connection', conn => {
             conn.on('data', data => {
                 if(data.type === 'request_join') {
-                    let admit = confirm("A guest wants to join the meeting. Admit?");
-                    if(admit) {
-                        connectedPartnerId = conn.peer;
-                        conn.send({ type: 'accepted' });
-                        document.getElementById('status').innerText = "Guest admitted. Connecting call...";
-                        document.getElementById('linkSetupPanel').style.display = 'none';
-                        
-                        currentCall = peer.call(connectedPartnerId, localStream);
-                        handleCallStream(currentCall);
-                    } else {
-                        conn.send({ type: 'rejected' });
-                    }
+                    pendingConnection = conn;
+                    partnerName = data.name || 'Guest';
+                    document.getElementById('guestNameText').innerText = partnerName;
+                    document.getElementById('admitModal').style.display = 'flex';
                 }
             });
         });
 
+        function handleAdmit(admit) {
+            document.getElementById('admitModal').style.display = 'none';
+            if(!pendingConnection) return;
+            
+            if(admit) {
+                connectedPartnerId = pendingConnection.peer;
+                pendingConnection.send({ type: 'accepted', name: myName });
+                document.getElementById('setupContainer').style.display = 'none';
+                document.getElementById('remoteLabel').innerText = partnerName;
+                
+                currentCall = peer.call(connectedPartnerId, localStream);
+                handleCallStream(currentCall);
+                showToast(partnerName + " joined the call");
+            } else {
+                pendingConnection.send({ type: 'rejected' });
+            }
+            pendingConnection = null;
+        }
+
+        // Guest side requesting
         function requestJoin() {
-            document.getElementById('status').innerText = "Request sent. Waiting for host's permission...";
-            document.getElementById('joinBtn').style.display = 'none';
+            document.getElementById('guestActions').style.display = 'none';
+            document.getElementById('status').innerText = "Asking to join...";
             
             const conn = peer.connect(hostIdFromUrl);
-            conn.on('open', () => conn.send({ type: 'request_join' }));
+            conn.on('open', () => conn.send({ type: 'request_join', name: myName }));
             
             conn.on('data', data => {
                 if(data.type === 'accepted') {
-                    document.getElementById('status').innerText = "Admitted! Connecting to host...";
+                    partnerName = data.name || 'Host';
+                    document.getElementById('remoteLabel').innerText = partnerName;
+                    document.getElementById('setupContainer').style.display = 'none';
+                    showToast("You joined the call");
                 } else if(data.type === 'rejected') {
-                    document.getElementById('status').innerText = "The host rejected your join request.";
-                    document.getElementById('joinBtn').style.display = 'inline-block';
+                    document.getElementById('status').innerText = "You were denied entry.";
+                    showToast("Call rejected by Host");
                 }
             });
         }
@@ -261,38 +355,57 @@
 
         function handleCallStream(callObj) {
             callObj.on('stream', remoteStream => {
-                const remoteVideo = document.getElementById('remoteVideo');
-                remoteVideo.srcObject = remoteStream;
+                document.getElementById('remoteVideo').srcObject = remoteStream;
                 document.getElementById('remoteBox').style.display = 'block';
-                document.getElementById('status').innerText = "Connected successfully.";
+                document.getElementById('localBox').style.width = '200px'; 
+                document.getElementById('localBox').style.height = '140px'; 
             });
             callObj.on('close', () => {
-                document.getElementById('status').innerText = "Partner has left the meeting.";
                 document.getElementById('remoteBox').style.display = 'none';
-                resetUI();
+                showToast("Partner left the call");
             });
         }
 
-        function generateLink() {
-            const link = window.location.origin + window.location.pathname + "?room=" + peer.id;
-            document.getElementById('inviteLink').value = link;
-            document.getElementById('status').innerText = "Link generated. Share it with your partner.";
-        }
+        async function toggleMic() {
+            if (!hasRealMic) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+                    const newTrack = stream.getAudioTracks()[0];
+                    localStream.removeTrack(localStream.getAudioTracks()[0]);
+                    localStream.addTrack(newTrack);
 
-        // ==========================
-        // Controls (Mic, Cam, Screen)
-        // ==========================
-        function toggleMic() {
-            if(!localStream) return;
-            isMicOn = !isMicOn;
-            localStream.getAudioTracks()[0].enabled = isMicOn;
+                    if (currentCall) {
+                        const sender = currentCall.peerConnection.getSenders().find(s => s.track && s.track.kind === 'audio');
+                        if (sender) sender.replaceTrack(newTrack);
+                    }
+                    hasRealMic = true; isMicOn = true;
+                } catch(e) { showToast("Microphone permission denied!"); return; }
+            } else {
+                isMicOn = !isMicOn;
+                localStream.getAudioTracks()[0].enabled = isMicOn;
+            }
             updateControlButtonsUI();
         }
 
-        function toggleCam() {
-            if(!localStream) return;
-            isCamOn = !isCamOn;
-            localStream.getVideoTracks()[0].enabled = isCamOn;
+        async function toggleCam() {
+            if (!hasRealCam) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    const newTrack = stream.getVideoTracks()[0];
+                    localStream.removeTrack(localStream.getVideoTracks()[0]);
+                    localStream.addTrack(newTrack);
+
+                    if (currentCall) {
+                        const sender = currentCall.peerConnection.getSenders().find(s => s.track && s.track.kind === 'video');
+                        if (sender) sender.replaceTrack(newTrack);
+                    }
+                    hasRealCam = true; isCamOn = true;
+                    document.getElementById('localVideo').srcObject = localStream; 
+                } catch(e) { showToast("Camera permission denied!"); return; }
+            } else {
+                isCamOn = !isCamOn;
+                localStream.getVideoTracks()[0].enabled = isCamOn;
+            }
             updateControlButtonsUI();
         }
 
@@ -300,40 +413,30 @@
             if (!isScreenSharing) {
                 try {
                     const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
-                    
-                    const audioCtx = new AudioContext();
-                    const dest = audioCtx.createMediaStreamDestination();
-                    
-                    if (localStream && localStream.getAudioTracks().length > 0) {
-                        audioCtx.createMediaStreamSource(localStream).connect(dest);
-                    }
-                    if (screenStream.getAudioTracks().length > 0) {
-                        audioCtx.createMediaStreamSource(screenStream).connect(dest);
-                    }
-                    
-                    const mixedAudioTrack = dest.stream.getAudioTracks()[0];
                     const screenVideoTrack = screenStream.getVideoTracks()[0];
                     
                     if (currentCall) {
                         const senderVideo = currentCall.peerConnection.getSenders().find(s => s.track.kind === 'video');
-                        const senderAudio = currentCall.peerConnection.getSenders().find(s => s.track.kind === 'audio');
                         if(senderVideo) senderVideo.replaceTrack(screenVideoTrack);
-                        if(senderAudio) senderAudio.replaceTrack(mixedAudioTrack);
+                        
+                        if (screenStream.getAudioTracks().length > 0) {
+                            const audioCtx = new AudioContext();
+                            const dest = audioCtx.createMediaStreamDestination();
+                            
+                            if (localStream.getAudioTracks().length > 0) audioCtx.createMediaStreamSource(localStream).connect(dest);
+                            audioCtx.createMediaStreamSource(screenStream).connect(dest);
+                            
+                            const senderAudio = currentCall.peerConnection.getSenders().find(s => s.track.kind === 'audio');
+                            if(senderAudio) senderAudio.replaceTrack(dest.stream.getAudioTracks()[0]);
+                        }
                     }
 
                     document.getElementById('localVideo').srcObject = new MediaStream([screenVideoTrack]);
-                    document.getElementById('localLabel').innerText = "Local (Screen)";
                     
                     isScreenSharing = true;
-                    const screenBtn = document.getElementById('screenBtn');
-                    screenBtn.innerText = "🛑";
-                    screenBtn.title = "Stop Screen";
-                    screenBtn.className = "btn-square btn-red";
-
+                    document.getElementById('screenBtn').classList.add('active');
                     screenVideoTrack.onended = () => toggleScreen(); 
-                } catch(e) {
-                    console.error("Screen share cancelled", e);
-                }
+                } catch(e) { showToast("Screen share cancelled"); }
             } else {
                 const camVideoTrack = localStream.getVideoTracks()[0];
                 const originalMicTrack = localStream.getAudioTracks()[0];
@@ -346,26 +449,72 @@
                 }
 
                 document.getElementById('localVideo').srcObject = localStream;
-                document.getElementById('localLabel').innerText = "Local (You)";
                 isScreenSharing = false;
-                const screenBtn = document.getElementById('screenBtn');
-                screenBtn.innerText = "💻";
-                screenBtn.title = "Share Screen";
-                screenBtn.className = "btn-square btn-blue";
+                document.getElementById('screenBtn').classList.remove('active');
+            }
+        }
+
+        // Unlimited Call/System Recording Feature
+        async function toggleRecord() {
+            if(!mediaRecorder || mediaRecorder.state === 'inactive') {
+                try {
+                    showToast("Select screen to record (audio will be mixed)");
+                    // Captures whole screen and system audio
+                    const displayStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+                    
+                    // Mix user's microphone with the system audio so both are recorded
+                    const audioCtx = new AudioContext();
+                    const dest = audioCtx.createMediaStreamDestination();
+                    
+                    if(localStream && localStream.getAudioTracks().length > 0) {
+                        audioCtx.createMediaStreamSource(localStream).connect(dest);
+                    }
+                    if(displayStream.getAudioTracks().length > 0) {
+                        audioCtx.createMediaStreamSource(displayStream).connect(dest);
+                    }
+                    
+                    const mixedStream = new MediaStream([displayStream.getVideoTracks()[0]]);
+                    if(dest.stream.getAudioTracks().length > 0) {
+                        mixedStream.addTrack(dest.stream.getAudioTracks()[0]);
+                    }
+
+                    mediaRecorder = new MediaRecorder(mixedStream);
+                    mediaRecorder.ondataavailable = e => { if(e.data.size > 0) recordedChunks.push(e.data); };
+                    mediaRecorder.onstop = () => {
+                        const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'Meetu_Session_' + new Date().getTime() + '.webm';
+                        a.click();
+                        recordedChunks = [];
+                        document.getElementById('recordBtn').classList.remove('active');
+                        showToast("Recording saved securely");
+                    };
+                    
+                    mediaRecorder.start();
+                    document.getElementById('recordBtn').classList.add('active');
+                    showToast("Recording started...");
+                    
+                    displayStream.getVideoTracks()[0].onended = () => {
+                        if(mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+                    };
+                } catch(e) { showToast("Recording cancelled or unsupported"); }
+            } else {
+                mediaRecorder.stop();
             }
         }
 
         function endCall() {
             if(localStream) localStream.getTracks().forEach(track => track.stop());
+            if(mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
             if(currentCall) currentCall.close();
-            resetUI();
-            window.location.reload(); 
-        }
-
-        function resetUI() {
+            
             document.getElementById('videoWrapper').style.display = 'none';
-            document.getElementById('controlsWrapper').style.display = 'none';
-            document.getElementById('status').innerText = "Call ended.";
+            document.getElementById('controlsPanel').style.display = 'none';
+            document.getElementById('setupContainer').style.display = 'block';
+            document.getElementById('status').innerText = "You left the meeting.";
+            window.location.reload();
         }
     </script>
 </body>
