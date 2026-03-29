@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Screen & Audio Share</title>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; background: #f4f4f9; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); }
+        input, button { padding: 10px; margin: 10px 0; width: 80%; border-radius: 5px; border: 1px solid #ccc; }
+        button { background: #28a745; color: white; border: none; cursor: pointer; font-weight: bold; }
+        button:hover { background: #218838; }
+        video { width: 100%; margin-top: 20px; border-radius: 8px; background: black; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h3>আপনার ID: <span id="myId" style="color: blue;">লোড হচ্ছে...</span></h3>
+        
+        <input type="text" id="partnerId" placeholder="যাকে স্ক্রিন দেখাবেন তার ID এখানে পেস্ট করুন">
+        <button onclick="startScreenShare()">Share Screen + Audition Audio</button>
+
+        <video id="remoteVideo" autoplay playsinline controls></video>
+    </div>
+
+    <script>
+        // Initialize PeerJS
+        const peer = new Peer();
+        
+        // Display own ID when connected
+        peer.on('open', id => {
+            document.getElementById('myId').innerText = id;
+        });
+
+        // When the other person calls you/shares screen
+        peer.on('call', call => {
+            call.answer(); // Automatically answer
+            call.on('stream', remoteStream => {
+                document.getElementById('remoteVideo').srcObject = remoteStream;
+            });
+        });
+
+        // Function to share screen and system audio
+        async function startScreenShare() {
+            const partnerId = document.getElementById('partnerId').value.trim();
+            if (!partnerId) {
+                alert("আগে ওপরের বক্সে পার্টনারের ID দিন!");
+                return;
+            }
+
+            try {
+                // Request Screen & Audio from Browser
+                const stream = await navigator.mediaDevices.getDisplayMedia({
+                    video: true,
+                    audio: true // This captures the system sound
+                });
+
+                // Call the partner and send the stream
+                const call = peer.call(partnerId, stream);
+                alert("শেয়ারিং শুরু হচ্ছে! Ensure 'Share System Audio' is checked.");
+                
+            } catch (err) {
+                console.error("Error:", err);
+                alert("স্ক্রিন শেয়ার ক্যানসেল করা হয়েছে বা পারমিশন নেই!");
+            }
+        }
+    </script>
+</body>
+</html>
