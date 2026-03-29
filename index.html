@@ -11,8 +11,35 @@
     
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
-        body { font-family: 'Poppins', sans-serif; text-align: center; background: #202124; color: white; padding: 20px; margin: 0; overflow-x: hidden; }
-        .container { background: #202124; padding: 20px; max-width: 900px; margin: auto; }
+        /* Realistic Ocean Wave Video Background */
+        #bgVideo {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            z-index: -100;
+            transform: translateX(-50%) translateY(-50%);
+            object-fit: cover;
+            /* Ete UI clear thakbe r joler rong ta aaro deep blue lagbe */
+            filter: brightness(0.55) saturate(1.3) contrast(1.1); 
+        }
+
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            text-align: center; 
+            color: white; 
+            padding: 20px; 
+            margin: 0; 
+            overflow-x: hidden;
+            background-color: #051320; /* Fallback color video load howar aage */
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .container { position: relative; max-width: 1000px; margin: auto; height: 100%; display: flex; flex-direction: column; z-index: 1;}
         
         button { font-family: 'Poppins', sans-serif; cursor: pointer; border: none; font-weight: 500; transition: all 0.2s ease; }
         button:hover { filter: brightness(1.2); }
@@ -23,61 +50,104 @@
         
         /* Meet Style Solid Control Buttons */
         .meet-btn { 
-            width: 48px; 
-            height: 48px; 
-            border-radius: 50%; 
-            display: inline-flex; 
-            align-items: center; 
-            justify-content: center; 
-            padding: 0; 
-            background-color: #3c4043; /* Meet Dark Gray */
-            color: white;
-            border: none;
+            width: 48px; height: 48px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; 
+            padding: 0; background-color: rgba(60, 64, 67, 0.8); backdrop-filter: blur(5px); color: white; border: 1px solid rgba(255,255,255,0.1);
         }
-        .meet-btn.off { background-color: #ea4335; } /* Meet Red */
-        .meet-btn.active { background-color: #8ab4f8; color: #202124; } /* Meet Active Blue */
+        .meet-btn.off { background-color: #ea4335; border-color: #ea4335; } 
+        .meet-btn.active { background-color: #8ab4f8; color: #202124; border-color: #8ab4f8; } 
         
-        .btn-end { background-color: #ea4335; width: 60px; border-radius: 24px; }
+        .btn-end { background-color: #ea4335; width: 60px; border-radius: 24px; border-color: #ea4335; }
         .btn-end:hover { background-color: #d93025; }
 
         .material-symbols-outlined { font-size: 22px; font-variation-settings: 'FILL' 1; }
         
-        input.meet-input { font-family: 'Poppins', sans-serif; padding: 12px; width: 80%; max-width: 300px; margin: 10px 0; border-radius: 4px; border: 1px solid #5f6368; background: #202124; color: #e8eaed; text-align: center; font-size: 14px; }
+        input.meet-input { font-family: 'Poppins', sans-serif; padding: 12px; width: 80%; max-width: 300px; margin: 10px 0; border-radius: 4px; border: 1px solid #5f6368; background: rgba(32, 33, 36, 0.8); color: #e8eaed; text-align: center; font-size: 14px; }
         input.meet-input:focus { outline: 2px solid #8ab4f8; border-color: transparent; }
         
-        #status { color: #8ab4f8; margin: 10px 0; font-size: 14px; }
+        #status { color: #8ab4f8; margin: 10px 0; font-size: 14px; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
         
         /* Bottom Control Bar */
-        #controlsPanel { display: none; margin-top: 20px; padding: 15px; background: #202124; display: flex; justify-content: center; align-items: center; gap: 12px; }
+        #controlsPanel { display: none; margin-top: auto; padding: 15px; display: flex; justify-content: center; align-items: center; gap: 12px; }
         
         /* Video Section */
-        .video-wrapper { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-top: 10px; display: none; }
-        .video-box { position: relative; background: #3c4043; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+        .video-wrapper { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-top: 10px; display: none; flex-grow: 1; align-items: center; }
+        .video-box { position: relative; background: rgba(0,0,0,0.5); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); transition: 0.3s; }
         .local-box { width: 300px; height: 200px; }
-        .remote-box { width: 100%; max-width: 700px; height: auto; display: none; }
+        .remote-box { width: 100%; max-width: 750px; height: auto; display: none; }
         video { width: 100%; height: 100%; object-fit: cover; }
         
-        /* Name Labels on Video */
-        .label { position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,0.6); color: #fff; padding: 5px 10px; font-size: 12px; border-radius: 4px; display: flex; align-items: center; gap: 5px; }
+        /* Name Labels & Fullscreen */
+        .video-overlay-bar { position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); padding: 15px 10px 10px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box;}
+        .label { color: #fff; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 5px; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
+        .action-btn { background: transparent; color: white; padding: 5px; border-radius: 5px; display: flex; align-items: center; justify-content: center; }
+        .action-btn:hover { background: rgba(255,255,255,0.2); }
 
-        /* Custom Modals (No Alerts) */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-content { background: #2b2b36; padding: 25px; border-radius: 8px; text-align: center; width: 320px; color: white; }
-        .modal-content h3 { margin-top: 0; font-weight: 500; }
+        /* Setup Panel */
+        .setup-panel { background: rgba(60, 64, 67, 0.85); backdrop-filter: blur(10px); padding: 30px; border-radius: 12px; display: inline-block; margin-top: 50px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+
+        /* Custom Modals */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(3px); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: #2b2b36; padding: 25px; border-radius: 12px; text-align: center; width: 320px; color: white; border: 1px solid rgba(255,255,255,0.1); }
         .modal-buttons { margin-top: 20px; display: flex; justify-content: center; gap: 10px; }
         
         /* Toast Notification */
-        #toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #3c4043; color: white; padding: 10px 20px; border-radius: 4px; font-size: 13px; display: none; z-index: 2000; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+        #toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #8ab4f8; color: #202124; padding: 10px 20px; border-radius: 20px; font-size: 13px; font-weight: 600; display: none; z-index: 2000; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+
+        /* Chat Sidebar */
+        #chatSidebar { position: fixed; right: -350px; top: 0; width: 320px; height: 100%; background: rgba(32, 33, 36, 0.95); backdrop-filter: blur(10px); z-index: 1500; transition: 0.3s; border-left: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; box-shadow: -5px 0 20px rgba(0,0,0,0.5); }
+        .chat-header { padding: 15px; background: rgba(0,0,0,0.2); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600; }
+        .chat-body { flex-grow: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; text-align: left; }
+        .chat-msg { background: #3c4043; padding: 8px 12px; border-radius: 8px; font-size: 13px; align-self: flex-start; max-width: 85%; }
+        .chat-msg.me { background: #8ab4f8; color: #202124; align-self: flex-end; }
+        .chat-msg span.sender { display: block; font-size: 10px; opacity: 0.8; margin-bottom: 3px; font-weight: bold; }
+        .chat-input-area { padding: 15px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; gap: 10px; }
+        .chat-input-area input { flex-grow: 1; padding: 10px; border-radius: 20px; border: none; background: #5f6368; color: white; outline: none; padding-left: 15px;}
+        .chat-input-area button { border-radius: 50%; width: 40px; height: 40px; background: #8ab4f8; color: #202124; display: flex; align-items: center; justify-content: center; }
+
+        /* Reactions Menu */
+        #reactionMenu { display: none; position: absolute; bottom: 80px; background: rgba(60,64,67,0.9); padding: 10px; border-radius: 30px; gap: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); }
+        .react-btn { background: transparent; font-size: 24px; padding: 5px; cursor: pointer; border-radius: 50%; }
+        .react-btn:hover { background: rgba(255,255,255,0.2); transform: scale(1.2); }
+
+        /* Floating Animation */
+        .floating-reaction { position: fixed; bottom: 100px; left: 50%; font-size: 40px; pointer-events: none; animation: floatUp 2.5s ease-out forwards; z-index: 1000; }
+        @keyframes floatUp { 0% { transform: translate(-50%, 0) scale(0.5); opacity: 1; } 50% { transform: translate(calc(-50% + 20px), -150px) scale(1.2); opacity: 0.8; } 100% { transform: translate(calc(-50% - 20px), -300px) scale(1); opacity: 0; } }
         
-        .setup-panel { background: #3c4043; padding: 30px; border-radius: 8px; display: inline-block; margin-top: 20px; }
-    </style>
+        /* Profile & Avatar Styles */
+    <style>
 </head>
 <body>
+
+    <!-- Video Background Element added here -->
+    <video autoplay loop muted playsinline id="bgVideo">
+        <!-- Pexels Free HD Calm Ocean Wave Video -->
+        <source src="https://videos.pexels.com/video-files/853889/853889-hd_1920_1080_25fps.mp4" type="video/mp4">
+    </video>
+
+    <!-- Chat Sidebar -->
+    <div id="chatSidebar">
+        <div class="chat-header">
+            <span>In-call Messages</span>
+            <button class="action-btn" onclick="toggleChat()"><span class="material-symbols-outlined">close</span></button>
+        </div>
+        <div class="chat-body" id="chatBody"></div>
+        <div class="chat-input-area">
+            <input type="text" id="chatInput" placeholder="Send a message..." onkeypress="if(event.key==='Enter') sendChat()">
+            <button onclick="sendChat()"><span class="material-symbols-outlined">send</span></button>
+        </div>
+    </div>
 
     <div class="container">
         <!-- Setup Screens -->
         <div id="setupContainer" class="setup-panel">
             <h2 style="margin-top:0; font-weight:500;">Welcome to Meetu</h2>
+            
+            <label class="profile-setup" title="Click to change profile picture">
+                <img id="setupAvatarPreview" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%238ab4f8'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" />
+                <div class="edit-overlay">Change Pic</div>
+                <input type="file" id="pfpInput" accept="image/*" style="display:none" onchange="handlePfpUpload(event)">
+            </label>
+            
             <div id="status">Please enter your name to continue</div>
             
             <input type="text" id="userNameInput" class="meet-input" placeholder="Your Name (e.g. Sabibur)">
@@ -90,8 +160,8 @@
                 <button class="btn-green" onclick="startSetupFlow('guest')">Join Meeting</button>
             </div>
             
-            <div id="linkSetupPanel" style="display:none; margin-top:20px; border-top: 1px solid #5f6368; padding-top:20px;">
-                <p style="font-size:13px; color:#9aa0a6;">Share this link with your guest:</p>
+            <div id="linkSetupPanel" style="display:none; margin-top:20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top:20px;">
+                <p style="font-size:13px; color:#e8eaed;">Share this link with your guest:</p>
                 <input type="text" id="inviteLink" class="meet-input" readonly onclick="this.select()">
                 <br>
                 <button class="btn-blue" style="margin-top:10px;" onclick="copyLink()">Copy Link</button>
@@ -100,34 +170,61 @@
 
         <!-- Video Containers -->
         <div class="video-wrapper" id="videoWrapper">
+            <!-- Remote Partner -->
             <div class="video-box remote-box" id="remoteBox">
+                <img id="remoteAvatarFallback" class="avatar-fallback" src="" />
                 <video id="remoteVideo" autoplay playsinline></video>
-                <div class="label"><span class="material-symbols-outlined" style="font-size:16px;">account_circle</span> <span id="remoteLabel">Partner</span></div>
+                <div class="video-overlay-bar">
+                    <div class="label"><span class="material-symbols-outlined" style="font-size:16px;">account_circle</span> <span id="remoteLabel">Partner</span></div>
+                    <button class="action-btn" onclick="toggleFullscreen('remoteBox')" title="Fullscreen"><span class="material-symbols-outlined">fullscreen</span></button>
+                </div>
             </div>
             
+            <!-- Local User -->
             <div class="video-box local-box" id="localBox">
+                <img id="localAvatarFallback" class="avatar-fallback" src="" />
+                <!-- Ensure muted so user doesn't hear themselves (Echo source 1) -->
                 <video id="localVideo" autoplay playsinline muted></video>
-                <div class="label"><span class="material-symbols-outlined" style="font-size:16px;">account_circle</span> <span id="localLabel">You</span></div>
+                <div class="video-overlay-bar">
+                    <div class="label"><span class="material-symbols-outlined" style="font-size:16px;">account_circle</span> <span id="localLabel">You</span></div>
+                    <button class="action-btn" onclick="toggleFullscreen('localBox')" title="Fullscreen"><span class="material-symbols-outlined">fullscreen</span></button>
+                </div>
             </div>
         </div>
         
-        <!-- Google Meet Style Controls Bar -->
-        <div id="controlsPanel">
-            <button class="meet-btn off" id="micBtn" onclick="toggleMic()" title="Toggle Microphone">
-                <span class="material-symbols-outlined" id="micIcon">mic_off</span>
-            </button>
-            <button class="meet-btn off" id="camBtn" onclick="toggleCam()" title="Toggle Camera">
-                <span class="material-symbols-outlined" id="camIcon">videocam_off</span>
-            </button>
-            <button class="meet-btn" id="screenBtn" onclick="toggleScreen()" title="Share Screen">
-                <span class="material-symbols-outlined" id="screenIcon">present_to_all</span>
-            </button>
-            <button class="meet-btn" id="recordBtn" onclick="toggleRecord()" title="Record Session">
-                <span class="material-symbols-outlined">radio_button_checked</span>
-            </button>
-            <button class="meet-btn btn-end" onclick="endCall()" title="Leave call">
-                <span class="material-symbols-outlined">call_end</span>
-            </button>
+        <!-- Controls Bar -->
+        <div style="position: relative; display: flex; justify-content: center; width: 100%;">
+            <!-- Reactions Popup -->
+            <div id="reactionMenu">
+                <button class="react-btn" onclick="sendReaction('👍')">👍</button>
+                <button class="react-btn" onclick="sendReaction('❤️')">❤️</button>
+                <button class="react-btn" onclick="sendReaction('😂')">😂</button>
+                <button class="react-btn" onclick="sendReaction('👏')">👏</button>
+            </div>
+
+            <div id="controlsPanel">
+                <button class="meet-btn off" id="micBtn" onclick="toggleMic()" title="Toggle Microphone">
+                    <span class="material-symbols-outlined" id="micIcon">mic_off</span>
+                </button>
+                <button class="meet-btn off" id="camBtn" onclick="toggleCam()" title="Toggle Camera">
+                    <span class="material-symbols-outlined" id="camIcon">videocam_off</span>
+                </button>
+                <button class="meet-btn" id="screenBtn" onclick="toggleScreen()" title="Share Screen">
+                    <span class="material-symbols-outlined" id="screenIcon">present_to_all</span>
+                </button>
+                <button class="meet-btn" id="recordBtn" onclick="toggleRecord()" title="Record Session">
+                    <span class="material-symbols-outlined">radio_button_checked</span>
+                </button>
+                <button class="meet-btn" onclick="toggleReactionMenu()" title="React">
+                    <span class="material-symbols-outlined">add_reaction</span>
+                </button>
+                <button class="meet-btn" onclick="toggleChat()" title="Chat">
+                    <span class="material-symbols-outlined">chat</span>
+                </button>
+                <button class="meet-btn btn-end" onclick="endCall()" title="Leave call">
+                    <span class="material-symbols-outlined">call_end</span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -146,6 +243,7 @@
     <div id="admitModal" class="modal-overlay">
         <div class="modal-content">
             <h3>Someone wants to join</h3>
+            <img id="guestAvatarPreview" style="width:70px; height:70px; border-radius:50%; object-fit:cover; margin-bottom:10px; border:2px solid #8ab4f8; display:none; margin-left:auto; margin-right:auto;" src=""/>
             <p><span id="guestNameText" style="font-weight:bold; color:#8ab4f8;">Someone</span> is requesting to join the call.</p>
             <div class="modal-buttons">
                 <button onclick="handleAdmit(true)" class="btn-blue">Admit</button>
@@ -160,28 +258,102 @@
         const peer = new Peer({ config: { 'iceServers': [ { urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' } ] } });
 
         let localStream, currentCall, connectedPartnerId = null;
+        let dataConn = null; // Global connection for Chat & Reactions
         let isMicOn = false, isCamOn = false, isScreenSharing = false; 
         let hasRealMic = false, hasRealCam = false; 
         
         let userRole = 'host';
-        let myName = 'Host';
+        let myName = localStorage.getItem('meetu_name') || 'Host';
         let partnerName = 'Guest';
+        let myPfp = localStorage.getItem('meetu_pfp') || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%238ab4f8'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>";
+        let partnerPfp = '';
         let setupStage = 0; 
         let userChoices = { cam: false, mic: false };
         let pendingConnection = null;
         
-        // Recording Variables
         let mediaRecorder;
         let recordedChunks = [];
 
+        // Pre-fill setup inputs from saved state
+        document.getElementById('userNameInput').value = localStorage.getItem('meetu_name') || '';
+        document.getElementById('setupAvatarPreview').src = myPfp;
+        document.getElementById('localAvatarFallback').src = myPfp;
+
         const urlParams = new URLSearchParams(window.location.search);
         const hostIdFromUrl = urlParams.get('room');
+        
+        // Handle Profile Picture Upload & Compression
+        function handlePfpUpload(event) {
+            const file = event.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 200;
+                    const scaleSize = MAX_WIDTH / img.width;
+                    canvas.width = MAX_WIDTH;
+                    canvas.height = img.height * scaleSize;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    myPfp = canvas.toDataURL('image/jpeg', 0.8);
+                    localStorage.setItem('meetu_pfp', myPfp); // Save permanently
+                    document.getElementById('setupAvatarPreview').src = myPfp;
+                    document.getElementById('localAvatarFallback').src = myPfp;
+                }
+                img.src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+
+        // Notification Sound Engine (Web Audio API - No files needed)
+        function playAlertSound(type) {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                
+                if(type === 'join') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+                    osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1); // E5
+                    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+                    osc.start(); osc.stop(ctx.currentTime + 0.3);
+                } else if (type === 'leave') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(659.25, ctx.currentTime); 
+                    osc.frequency.setValueAtTime(523.25, ctx.currentTime + 0.15); 
+                    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+                    osc.start(); osc.stop(ctx.currentTime + 0.3);
+                } else if (type === 'chat') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(800, ctx.currentTime);
+                    gain.gain.setValueAtTime(0.05, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+                    osc.start(); osc.stop(ctx.currentTime + 0.1);
+                }
+            } catch(e) {}
+        }
 
         function showToast(msg) {
             const t = document.getElementById('toast');
             t.innerText = msg;
             t.style.display = 'block';
             setTimeout(() => t.style.display = 'none', 3000);
+        }
+
+        function toggleFullscreen(elementId) {
+            const elem = document.getElementById(elementId);
+            if (!document.fullscreenElement) {
+                elem.requestFullscreen().catch(err => { showToast(`Error attempting to enable fullscreen: ${err.message}`); });
+            } else {
+                document.exitFullscreen();
+            }
         }
 
         peer.on('open', id => {
@@ -195,7 +367,10 @@
 
         function startSetupFlow(role) {
             const nameInp = document.getElementById('userNameInput').value.trim();
-            if(nameInp) myName = nameInp;
+            if(nameInp) {
+                myName = nameInp;
+                localStorage.setItem('meetu_name', myName); // Save name permanently
+            }
             document.getElementById('localLabel').innerText = myName + " (You)";
             
             setupStage = 0;
@@ -248,12 +423,16 @@
                     const vStream = await navigator.mediaDevices.getUserMedia({ video: true });
                     localStream.addTrack(vStream.getVideoTracks()[0]);
                     hasRealCam = true; isCamOn = true;
-                } catch(e) { localStream.addTrack(getBlankVideoTrack()); showToast("Camera blocked"); }
-            } else { localStream.addTrack(getBlankVideoTrack()); }
+                    document.getElementById('localVideo').style.opacity = 1;
+                } catch(e) { localStream.addTrack(getBlankVideoTrack()); showToast("Camera blocked"); document.getElementById('localVideo').style.opacity = 0; }
+            } else { localStream.addTrack(getBlankVideoTrack()); document.getElementById('localVideo').style.opacity = 0; }
 
             if (userChoices.mic) {
                 try {
-                    const aStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+                    // Strict Echo Cancellation properties requested
+                    const aStream = await navigator.mediaDevices.getUserMedia({ 
+                        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } 
+                    });
                     localStream.addTrack(aStream.getAudioTracks()[0]);
                     hasRealMic = true; isMicOn = true;
                 } catch(e) { localStream.addTrack(getSilentAudioTrack()); showToast("Mic blocked"); }
@@ -294,14 +473,45 @@
             else { camBtn.className = 'meet-btn off'; camIcon.innerText = 'videocam_off'; }
         }
 
+        // ======================================
+        // DATA CONNECTION (CHAT & REACTION)
+        // ======================================
+        function handleData(data) {
+            if(data.type === 'chat') {
+                playAlertSound('chat');
+                appendChatMessage(data.sender, data.text, false);
+                if(document.getElementById('chatSidebar').style.right !== '0px') {
+                    showToast(data.sender + ": " + data.text);
+                }
+            } else if (data.type === 'reaction') {
+                showFloatingReaction(data.emoji);
+            } else if (data.type === 'cam_state') {
+                // Instantly sync partner's camera UI (Hide video to reveal PFP if off)
+                document.getElementById('remoteVideo').style.opacity = data.state ? 1 : 0;
+            }
+        }
+
         // Host side connection handling
         peer.on('connection', conn => {
             conn.on('data', data => {
                 if(data.type === 'request_join') {
                     pendingConnection = conn;
                     partnerName = data.name || 'Guest';
+                    partnerPfp = data.pfp || '';
                     document.getElementById('guestNameText').innerText = partnerName;
+                    
+                    const guestAvatar = document.getElementById('guestAvatarPreview');
+                    if(partnerPfp) {
+                        guestAvatar.src = partnerPfp;
+                        guestAvatar.style.display = 'block';
+                    } else {
+                        guestAvatar.style.display = 'none';
+                    }
+                    
+                    playAlertSound('join'); // Alert for host
                     document.getElementById('admitModal').style.display = 'flex';
+                } else {
+                    handleData(data);
                 }
             });
         });
@@ -312,12 +522,19 @@
             
             if(admit) {
                 connectedPartnerId = pendingConnection.peer;
-                pendingConnection.send({ type: 'accepted', name: myName });
+                dataConn = pendingConnection; // Save connection for Chat
+                pendingConnection.send({ type: 'accepted', name: myName, pfp: myPfp });
                 document.getElementById('setupContainer').style.display = 'none';
                 document.getElementById('remoteLabel').innerText = partnerName;
+                if(partnerPfp) document.getElementById('remoteAvatarFallback').src = partnerPfp;
                 
                 currentCall = peer.call(connectedPartnerId, localStream);
                 handleCallStream(currentCall);
+                
+                // Tell guest our initial camera state
+                if(dataConn && dataConn.open) dataConn.send({ type: 'cam_state', state: isCamOn });
+                
+                playAlertSound('join');
                 showToast(partnerName + " joined the call");
             } else {
                 pendingConnection.send({ type: 'rejected' });
@@ -330,18 +547,27 @@
             document.getElementById('guestActions').style.display = 'none';
             document.getElementById('status').innerText = "Asking to join...";
             
-            const conn = peer.connect(hostIdFromUrl);
-            conn.on('open', () => conn.send({ type: 'request_join', name: myName }));
+            dataConn = peer.connect(hostIdFromUrl);
+            dataConn.on('open', () => dataConn.send({ type: 'request_join', name: myName, pfp: myPfp }));
             
-            conn.on('data', data => {
+            dataConn.on('data', data => {
                 if(data.type === 'accepted') {
                     partnerName = data.name || 'Host';
+                    partnerPfp = data.pfp || '';
                     document.getElementById('remoteLabel').innerText = partnerName;
+                    if(partnerPfp) document.getElementById('remoteAvatarFallback').src = partnerPfp;
                     document.getElementById('setupContainer').style.display = 'none';
+                    
+                    // Tell host our initial camera state
+                    if(dataConn && dataConn.open) dataConn.send({ type: 'cam_state', state: isCamOn });
+                    
+                    playAlertSound('join');
                     showToast("You joined the call");
                 } else if(data.type === 'rejected') {
                     document.getElementById('status').innerText = "You were denied entry.";
                     showToast("Call rejected by Host");
+                } else {
+                    handleData(data);
                 }
             });
         }
@@ -362,6 +588,7 @@
             });
             callObj.on('close', () => {
                 document.getElementById('remoteBox').style.display = 'none';
+                playAlertSound('leave');
                 showToast("Partner left the call");
             });
         }
@@ -369,7 +596,7 @@
         async function toggleMic() {
             if (!hasRealMic) {
                 try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
                     const newTrack = stream.getAudioTracks()[0];
                     localStream.removeTrack(localStream.getAudioTracks()[0]);
                     localStream.addTrack(newTrack);
@@ -401,10 +628,14 @@
                     }
                     hasRealCam = true; isCamOn = true;
                     document.getElementById('localVideo').srcObject = localStream; 
+                    document.getElementById('localVideo').style.opacity = 1;
+                    if(dataConn && dataConn.open) dataConn.send({ type: 'cam_state', state: true });
                 } catch(e) { showToast("Camera permission denied!"); return; }
             } else {
                 isCamOn = !isCamOn;
                 localStream.getVideoTracks()[0].enabled = isCamOn;
+                document.getElementById('localVideo').style.opacity = isCamOn ? 1 : 0; // Show PFP if off
+                if(dataConn && dataConn.open) dataConn.send({ type: 'cam_state', state: isCamOn });
             }
             updateControlButtonsUI();
         }
@@ -419,7 +650,9 @@
                         const senderVideo = currentCall.peerConnection.getSenders().find(s => s.track.kind === 'video');
                         if(senderVideo) senderVideo.replaceTrack(screenVideoTrack);
                         
+                        // Mix Audio ONLY if system audio was shared
                         if (screenStream.getAudioTracks().length > 0) {
+                            showToast("System audio shared. Use headphones to prevent echo.");
                             const audioCtx = new AudioContext();
                             const dest = audioCtx.createMediaStreamDestination();
                             
@@ -432,6 +665,8 @@
                     }
 
                     document.getElementById('localVideo').srcObject = new MediaStream([screenVideoTrack]);
+                    document.getElementById('localVideo').style.opacity = 1;
+                    if(dataConn && dataConn.open) dataConn.send({ type: 'cam_state', state: true });
                     
                     isScreenSharing = true;
                     document.getElementById('screenBtn').classList.add('active');
@@ -449,9 +684,64 @@
                 }
 
                 document.getElementById('localVideo').srcObject = localStream;
+                document.getElementById('localVideo').style.opacity = isCamOn ? 1 : 0;
+                if(dataConn && dataConn.open) dataConn.send({ type: 'cam_state', state: isCamOn });
+                
                 isScreenSharing = false;
                 document.getElementById('screenBtn').classList.remove('active');
             }
+        }
+
+        // ======================================
+        // CHAT & REACTIONS FEATURES
+        // ======================================
+        function toggleChat() {
+            const sidebar = document.getElementById('chatSidebar');
+            sidebar.style.right = sidebar.style.right === '0px' ? '-350px' : '0px';
+        }
+
+        function sendChat() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if(text && dataConn && dataConn.open) {
+                dataConn.send({ type: 'chat', text: text, sender: myName });
+                appendChatMessage("You", text, true);
+                input.value = '';
+            } else if (!dataConn || !dataConn.open) {
+                showToast("Not connected to anyone yet.");
+            }
+        }
+
+        function appendChatMessage(sender, text, isMe) {
+            const body = document.getElementById('chatBody');
+            const div = document.createElement('div');
+            div.className = isMe ? 'chat-msg me' : 'chat-msg';
+            div.innerHTML = `<span class="sender">${sender}</span>${text}`;
+            body.appendChild(div);
+            body.scrollTop = body.scrollHeight;
+        }
+
+        function toggleReactionMenu() {
+            const menu = document.getElementById('reactionMenu');
+            menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        function sendReaction(emoji) {
+            document.getElementById('reactionMenu').style.display = 'none';
+            showFloatingReaction(emoji);
+            if(dataConn && dataConn.open) {
+                dataConn.send({ type: 'reaction', emoji: emoji });
+            }
+        }
+
+        function showFloatingReaction(emoji) {
+            const el = document.createElement('div');
+            el.className = 'floating-reaction';
+            el.innerText = emoji;
+            // Slight random horizontal offset
+            el.style.left = `calc(50% + ${Math.random() * 40 - 20}px)`;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 2500);
         }
 
         // Unlimited Call/System Recording Feature
@@ -459,11 +749,9 @@
             if(!mediaRecorder || mediaRecorder.state === 'inactive') {
                 try {
                     showToast("Select screen to record (audio will be mixed)");
-                    // Captures whole screen and system audio
                     const displayStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
                     
-                    // Mix user's microphone with the system audio so both are recorded
-                    const audioCtx = new AudioContext();
+                    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                     const dest = audioCtx.createMediaStreamDestination();
                     
                     if(localStream && localStream.getAudioTracks().length > 0) {
@@ -509,6 +797,7 @@
             if(localStream) localStream.getTracks().forEach(track => track.stop());
             if(mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
             if(currentCall) currentCall.close();
+            playAlertSound('leave');
             
             document.getElementById('videoWrapper').style.display = 'none';
             document.getElementById('controlsPanel').style.display = 'none';
