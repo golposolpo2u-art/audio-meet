@@ -3,68 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quick Screen & Audio Share</title>
+    <title>Pro Screen Share - Meet Style</title>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; background: #f4f4f9; }
-        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); }
-        input, button { padding: 10px; margin: 10px 0; width: 80%; border-radius: 5px; border: 1px solid #ccc; }
-        button { background: #28a745; color: white; border: none; cursor: pointer; font-weight: bold; }
-        button:hover { background: #218838; }
-        video { width: 100%; margin-top: 20px; border-radius: 8px; background: black; }
+        body { font-family: Arial, sans-serif; text-align: center; background: #1e1e1e; color: white; padding: 20px; margin: 0; }
+        .container { background: #2d2d2d; padding: 20px; border-radius: 10px; max-width: 600px; margin: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        button { padding: 10px 20px; margin: 10px; cursor: pointer; border: none; border-radius: 5px; font-weight: bold; font-size: 14px; }
+        .btn-blue { background: #0b5ed7; color: white; }
+        .btn-green { background: #198754; color: white; }
+        .btn-red { background: #dc3545; color: white; }
+        input { padding: 10px; width: 85%; margin: 10px 0; border-radius: 5px; border: 1px solid #555; background: #111; color: #fff; }
+        video { width: 100%; border-radius: 8px; background: #000; margin-top: 20px; display: none; border: 2px solid #444; }
+        #status { color: #ffc107; margin: 10px 0; font-size: 16px; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h3>আপনার ID: <span id="myId" style="color: blue;">লোড হচ্ছে...</span></h3>
+        <h2>🌐 Private Screen Share</h2>
+        <div id="status">System is getting ready...</div>
         
-        <input type="text" id="partnerId" placeholder="যাকে স্ক্রিন দেখাবেন তার ID এখানে পেস্ট করুন">
-        <button onclick="startScreenShare()">Share Screen + Audition Audio</button>
+        <div id="hostPanel" style="display:none;">
+            <button class="btn-blue" onclick="generateLink()">1. Generate Meeting Link</button><br>
+            <input type="text" id="inviteLink" readonly placeholder="Link will appear here..." onclick="this.select()">
+            <br>
+            <button class="btn-green" id="startShareBtn" style="display:none;" onclick="startSharing()">2. Start Screen Share</button>
+            <button class="btn-red" id="endBtn" style="display:none;" onclick="endShare()">Stop Sharing</button>
+        </div>
 
-        <video id="remoteVideo" autoplay playsinline controls></video>
+        <div id="guestPanel" style="display:none;">
+            <button class="btn-green" id="joinBtn" onclick="requestJoin()">Request to Join Meeting</button>
+        </div>
+
+        <video id="videoElement" autoplay playsinline controls></video>
     </div>
 
     <script>
-        // Initialize PeerJS
-        const peer = new Peer();
-        
-        // Display own ID when connected
-        peer.on('open', id => {
-            document.getElementById('myId').innerText = id;
+        const peer = new Peer({
+            config: { 'iceServers': [ { urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' } ] }
         });
 
-        // When the other person calls you/shares screen
-        peer.on('call', call => {
-            call.answer(); // Automatically answer
-            call.on('stream', remoteStream => {
-                document.getElementById('remoteVideo').srcObject = remoteStream;
+        let myStream, currentCall, connectedGuestId = null;
+        const urlParams = new URLSearchParams(window.location.search);
+        const hostIdFromUrl = urlParams.get('room');
+
+        peer.on('open', id => {
+            if(hostIdFromUrl) {
+                document.getElementById('guestPanel').style.display = 'block';
+                document.getElementById('status').innerText = "You are a Guest. Please request to join.";
+            } else {
+                document.getElementById('hostPanel').style.display = 'block';
+                document.getElementById('status').innerText = "You are the Host. Generate a link first.";
+            }
+        });
+
+        peer.on('connection', conn => {
+            conn.on('data', data => {
+                if(data.type === 'request_join') {
+                    let admit = confirm("Someone wants to join your meeting! Admit?");
+                    if(admit) {
+                        connectedGuestId = conn.peer;
+                        conn.send({ type: 'accepted' });
+                        document.getElementById('startShareBtn').style.display = 'inline-block';
+                        document.getElementById('status').innerText = "Guest admitted! You can start sharing now.";
+                    } else {
+                        conn.send({ type: 'rejected' });
+                    }
+                }
             });
         });
 
-        // Function to share screen and system audio
-        async function startScreenShare() {
-            const partnerId = document.getElementById('partnerId').value.trim();
-            if (!partnerId) {
-                alert("আগে ওপরের বক্সে পার্টনারের ID দিন!");
-                return;
-            }
+        peer.on('call', call => {
+            call.answer();
+            currentCall = call;
+            call.on('stream', remoteStream => {
+                const video = document.getElementById('videoElement');
+                video.srcObject = remoteStream;
+                video.style.display = 'block';
+                video.onloadedmetadata = () => video.play(); 
+                document.getElementById('status').innerText = "Screen is visible!";
+            });
+            call.on('close', () => {
+                document.getElementById('status').innerText = "Host has stopped sharing.";
+                document.getElementById('videoElement').style.display = 'none';
+            });
+        });
 
+        function generateLink() {
+            const link = window.location.origin + window.location.pathname + "?room=" + peer.id;
+            document.getElementById('inviteLink').value = link;
+            document.getElementById('status').innerText = "Copy the link and send it to your partner.";
+        }
+
+        async function startSharing() {
+            if(!connectedGuestId) return alert("You must admit someone first!");
             try {
-                // Request Screen & Audio from Browser
-                const stream = await navigator.mediaDevices.getDisplayMedia({
-                    video: true,
-                    audio: true // This captures the system sound
-                });
+                myStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+                const video = document.getElementById('videoElement');
+                video.srcObject = myStream;
+                video.style.display = 'block';
+                video.muted = true; 
+                video.play();
 
-                // Call the partner and send the stream
-                const call = peer.call(partnerId, stream);
-                alert("শেয়ারিং শুরু হচ্ছে! Ensure 'Share System Audio' is checked.");
+                currentCall = peer.call(connectedGuestId, myStream);
                 
-            } catch (err) {
-                console.error("Error:", err);
-                alert("স্ক্রিন শেয়ার ক্যানসেল করা হয়েছে বা পারমিশন নেই!");
+                document.getElementById('startShareBtn').style.display = 'none';
+                document.getElementById('endBtn').style.display = 'inline-block';
+                document.getElementById('status').innerText = "Sharing in progress...";
+
+                myStream.getVideoTracks()[0].onended = () => endShare();
+            } catch(e) {
+                alert("Screen share cancelled!");
             }
+        }
+
+        function endShare() {
+            if(myStream) myStream.getTracks().forEach(track => track.stop());
+            if(currentCall) currentCall.close();
+            
+            document.getElementById('videoElement').style.display = 'none';
+            document.getElementById('startShareBtn').style.display = 'inline-block';
+            document.getElementById('endBtn').style.display = 'none';
+            document.getElementById('status').innerText = "Sharing stopped.";
+        }
+
+        function requestJoin() {
+            document.getElementById('status').innerText = "Request sent, waiting for host's response...";
+            document.getElementById('joinBtn').style.display = 'none';
+            
+            const conn = peer.connect(hostIdFromUrl);
+            conn.on('open', () => conn.send({ type: 'request_join' }));
+            
+            conn.on('data', data => {
+                if(data.type === 'accepted') {
+                    document.getElementById('status').innerText = "You have been admitted! Video is loading...";
+                } else if(data.type === 'rejected') {
+                    document.getElementById('status').innerText = "The host has rejected your request!";
+                    document.getElementById('joinBtn').style.display = 'inline-block';
+                }
+            });
         }
     </script>
 </body>
