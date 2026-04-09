@@ -1015,9 +1015,9 @@
             <h1>Meetu App</h1>
             <p>মোবাইল থেকে সরাসরি ওয়েবসাইটে ভিডিও কল করা যায় না। ভালো এক্সপেরিয়েন্সের জন্য Meetu APK অ্যাপটি ডাউনলোড করে ইন্সটল করুন।</p>
             
-            <button class="btn-download" onclick="window.downloadAPK()">
+            <a class="btn-download" href="https://drive.google.com/uc?export=download&id=1plozQb4xO-7Gjd6uJhNKEqVQkXQpobZA" target="_blank" download>
                 <span class="material-symbols-outlined">download</span> Download APK
-            </button>
+            </a>
             <p style="font-size: 12px; color: var(--text-muted); margin-top: 20px;">* পিসি বা ল্যাপটপ থেকে খুললে সরাসরি ওয়েবে চলবে।</p>
 
             <!-- Mobile Invite Notice -->
@@ -1354,15 +1354,6 @@
                 document.getElementById('mobileCopyLinkInput').value = window.location.href;
             }
         }
-
-        // FIXED MOBILE DOWNLOAD LOGIC (Forcing direct navigation instead of background click)
-        window.downloadAPK = function() {
-            window.showToast("APK ডাউনলোড শুরু হচ্ছে...");
-            const apkDownloadUrl = "https://drive.google.com/uc?export=download&id=1plozQb4xO-7Gjd6uJhNKEqVQkXQpobZA"; 
-            
-            // This is much stronger for mobile browsers to trigger download
-            window.location.href = apkDownloadUrl;
-        };
         
         window.copyMobileLink = function() {
             const copyText = document.getElementById("mobileCopyLinkInput");
@@ -1962,6 +1953,10 @@
                     }
                     updateParticipantsList();
                 }
+                else if (data.type === 'kicked') {
+                    window.showToast("Admin apnake meeting theke remove kore diyeche.");
+                    setTimeout(() => window.endCall(true), 2000);
+                }
                 else if (data.type === 'host_ended_call') { 
                     window.showToast("Host meeting shesh korechen"); 
                     setTimeout(() => window.endCall(true), 2000); 
@@ -2390,6 +2385,7 @@
                     menu.innerHTML = `
                         <button onclick="window.makeCohost('${id}')"><span class="material-symbols-outlined">shield_person</span> Make Co-host</button>
                         <button onclick="window.makeAdmin('${id}')"><span class="material-symbols-outlined">admin_panel_settings</span> Make Admin (Host)</button>
+                        <button onclick="window.removeParticipant('${id}')" style="color: var(--danger);"><span class="material-symbols-outlined">person_remove</span> Remove Participant</button>
                     `;
                     
                     menuBtn.onclick = (e) => { 
@@ -2426,6 +2422,28 @@
                     updateParticipantsList();
                     
                     broadcast({ type: 'host_transferred', newHostId: peerId });
+                }
+            };
+
+            // NEW: Remove Participant Feature
+            window.removeParticipant = function(peerId) {
+                if(peers[peerId] && peers[peerId].conn) {
+                    // Send kicked message to the specific user
+                    peers[peerId].conn.send({ type: 'kicked' });
+                    
+                    document.getElementById('menu_' + peerId).style.display = 'none';
+                    window.showToast(peers[peerId].name + " ke meeting theke remove kora hoyeche.");
+                    
+                    // Close connection and remove from UI
+                    setTimeout(() => {
+                        if(peers[peerId] && peers[peerId].conn) {
+                            peers[peerId].conn.close();
+                        }
+                        if(peers[peerId] && peers[peerId].call) {
+                            peers[peerId].call.close();
+                        }
+                        removePeer(peerId);
+                    }, 500);
                 }
             };
 
