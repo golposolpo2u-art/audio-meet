@@ -7,6 +7,7 @@
     
     <!-- PWA Manifest Link -->
     <link rel="manifest" id="manifest-link" href="">
+    
     <meta name="theme-color" content="#8ab4f8">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -88,6 +89,7 @@
             text-align: center;
             padding: 20px;
             box-sizing: border-box;
+            overflow-y: auto;
         }
 
         .download-card {
@@ -96,7 +98,9 @@
             border-radius: 16px;
             border: 1px solid var(--border);
             max-width: 350px;
+            width: 100%;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            margin: auto;
         }
 
         .download-card h1 { 
@@ -131,6 +135,29 @@
 
         .btn-download:hover { 
             transform: scale(1.05); 
+        }
+
+        /* Mobile Invite Link Box inside Download Screen */
+        #mobileInviteNotice {
+            display: none; 
+            margin-top: 20px; 
+            background: rgba(255,255,255,0.1); 
+            padding: 15px; 
+            border-radius: 12px; 
+            border: 1px solid var(--primary);
+        }
+
+        #mobileCopyLinkInput {
+            width: 100%; 
+            padding: 10px; 
+            border-radius: 6px; 
+            border: 1px solid var(--border); 
+            background: var(--bg-dark); 
+            color: white; 
+            margin-bottom: 10px; 
+            text-align: center; 
+            font-size: 13px;
+            box-sizing: border-box;
         }
 
         /* =========================================
@@ -291,8 +318,13 @@
         }
 
         /* Loading Spinner */
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        .spinner { animation: spin 1.5s linear infinite; display: inline-block; }
+        @keyframes spin { 
+            100% { transform: rotate(360deg); } 
+        }
+        .spinner { 
+            animation: spin 1.5s linear infinite; 
+            display: inline-block; 
+        }
 
         /* =========================================
            CUTE PEEKING ANIMATIONS
@@ -445,7 +477,7 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.5); 
             border: 1px solid var(--border); 
             display: none; 
-            min-width: 150px;
+            min-width: 180px;
         }
 
         .user-menu button {
@@ -648,7 +680,7 @@
             flex: 1; 
         }
 
-        #settingsModal .modal-content { 
+        #settingsModal .modal-content, #hostControlsModal .modal-content { 
             width: 400px; 
             text-align: left; 
             max-width: 90%; 
@@ -674,6 +706,61 @@
             color: white; 
             outline: none; 
             font-family: inherit; 
+        }
+
+        /* Feature Toggle Switch */
+        .feature-toggle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-dark);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border);
+        }
+        
+        .feature-toggle span {
+            color: white;
+            font-size: 14px;
+        }
+
+        /* Advanced Toggle Checkbox */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+        .switch input { 
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+        input:checked + .slider:before {
+            transform: translateX(20px);
         }
 
         .sidebar {
@@ -856,7 +943,7 @@
         }
 
         /* =========================================
-           MOBILE SPECIFIC UI FIXES (Mobile App friendly)
+           MOBILE SPECIFIC UI FIXES (Perfect Grid/Wrap)
            ========================================= */
         @media (max-width: 768px) {
             #videoGrid { 
@@ -867,50 +954,45 @@
                 display: none !important; 
             } 
             
+            /* Controls wrap nicely so buttons are not hidden */
             #controlsBar { 
                 position: fixed; 
                 bottom: 0; 
                 left: 0; 
                 width: 100%;
-                padding: 15px 10px calc(15px + env(safe-area-inset-bottom)); 
+                padding: 15px 10px 25px 10px; 
                 gap: 10px; 
                 border-top-left-radius: 20px; 
                 border-top-right-radius: 20px; 
                 box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
-                flex-wrap: nowrap; 
-                overflow-x: auto; 
-                justify-content: flex-start; 
-                -webkit-overflow-scrolling: touch;
-            }
-
-            #controlsBar::-webkit-scrollbar { 
-                display: none; 
+                flex-wrap: wrap; 
+                justify-content: center; 
+                overflow-x: visible; 
             }
 
             #mainWorkspace { 
-                padding-bottom: 120px; 
+                padding-bottom: 160px; 
                 height: 100vh; 
             }
             
-            /* Thicker buttons for mobile */
             .meet-pill { 
-                height: 55px; 
+                height: 50px; 
                 flex-shrink: 0; 
             } 
             .meet-pill-main { 
-                width: 55px; 
+                width: 50px; 
             }
             .meet-pill-arrow { 
-                width: 35px; 
+                width: 30px; 
             }
             .control-btn { 
-                width: 55px; 
-                height: 55px; 
+                width: 50px; 
+                height: 50px; 
                 flex-shrink: 0; 
             } 
             .end-call-btn { 
-                width: 75px; 
-                height: 55px; 
+                width: 70px; 
+                height: 50px; 
                 flex-shrink: 0; 
             }
             .sidebar { 
@@ -937,6 +1019,16 @@
                 <span class="material-symbols-outlined">download</span> Download APK
             </button>
             <p style="font-size: 12px; color: var(--text-muted); margin-top: 20px;">* পিসি বা ল্যাপটপ থেকে খুললে সরাসরি ওয়েবে চলবে।</p>
+
+            <!-- Mobile Invite Notice -->
+            <div id="mobileInviteNotice">
+                <p style="color: #fff; font-weight: 500; margin: 0 0 10px 0; font-size: 14px;">আপনাকে একটি মিটিংয়ে ইনভাইট করা হয়েছে!</p>
+                <input type="text" id="mobileCopyLinkInput" readonly>
+                <button onclick="window.copyMobileLink()" style="background: var(--success); color: #000; padding: 8px 15px; border-radius: 20px; border: none; font-weight: bold; font-size: 13px; cursor: pointer;">
+                    <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">content_copy</span> লিংকটি কপি করুন
+                </button>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 10px; line-height: 1.4;">অ্যাপটি ওপেন করে <b>"Join a Meet"</b>-এ লিংকটি পেস্ট করুন।</p>
+            </div>
         </div>
     </div>
 
@@ -1006,7 +1098,7 @@
                 <input type="text" id="userNameInput" class="meet-input" placeholder="Enter your name">
                 
                 <!-- Loading text while connecting to server -->
-                <div id="loadingStatus" style="color: var(--primary); font-weight: bold; margin: 15px 0;">
+                <div id="loadingStatus" style="color: #4a3b32; font-weight: bold; margin: 15px 0;">
                     <span class="material-symbols-outlined spinner" style="vertical-align: middle;">sync</span>
                     সার্ভারের সাথে কানেক্ট হচ্ছে...
                 </div>
@@ -1069,6 +1161,7 @@
             </button>
         </div>
 
+        <!-- Featurable Buttons -->
         <button class="control-btn" id="screenBtn" onclick="window.toggleScreen()" title="Share Screen">
             <span class="material-symbols-outlined">present_to_all</span>
         </button>
@@ -1077,16 +1170,22 @@
             <span class="material-symbols-outlined">radio_button_checked</span>
         </button>
         
-        <button class="control-btn" onclick="window.toggleReactionMenu()" title="React">
+        <button class="control-btn" id="reactionToggleBtn" onclick="window.toggleReactionMenu()" title="React">
             <span class="material-symbols-outlined">add_reaction</span>
         </button>
         
-        <button class="control-btn" onclick="window.toggleSidebar('chat')" title="Chat">
+        <button class="control-btn" id="chatToggleBtn" onclick="window.toggleSidebar('chat')" title="Chat">
             <span class="material-symbols-outlined">chat</span>
         </button>
         
+        <!-- Common Buttons -->
         <button class="control-btn" onclick="window.toggleSidebar('info')" title="Meeting Details">
             <span class="material-symbols-outlined">info</span>
+        </button>
+
+        <!-- NEW: HOST CONTROLS BUTTON (Visible only to Admin/Co-host) -->
+        <button class="control-btn" id="hostSettingsBtn" onclick="window.openHostControls()" style="display:none; background: #f0bc68; color: #000; border:none;" title="Host Controls">
+            <span class="material-symbols-outlined">admin_panel_settings</span>
         </button>
         
         <button class="control-btn end-call-btn" onclick="window.endCall()" title="Leave call">
@@ -1111,7 +1210,7 @@
             </button>
         </div>
         <div class="sidebar-body" id="chatBody"></div>
-        <div class="chat-input-area">
+        <div class="chat-input-area" id="chatInputArea">
             <input type="text" id="chatInput" placeholder="Send a message..." onkeypress="if(event.key==='Enter') window.sendChat()">
             <button onclick="window.sendChat()"><span class="material-symbols-outlined">send</span></button>
         </div>
@@ -1142,6 +1241,7 @@
         </div>
     </div>
 
+    <!-- Personal Settings Modal -->
     <div id="settingsModal" class="modal-overlay">
         <div class="modal-content">
             <h3 style="margin-top:0;">Settings</h3>
@@ -1158,6 +1258,50 @@
             <div class="modal-buttons">
                 <button onclick="window.saveSettings()" class="btn-primary">Save & Apply</button>
                 <button onclick="document.getElementById('settingsModal').style.display='none'" style="background:var(--surface); border:1px solid var(--border); color:white;">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW: HOST CONTROLS MODAL -->
+    <div id="hostControlsModal" class="modal-overlay">
+        <div class="modal-content" style="background: linear-gradient(135deg, #fef8ee 0%, #fcebcf 100%); border: 1px solid #f2d9b6;">
+            <h3 style="margin-top:0; color: #4a3b32; font-weight: 600;">Meeting Controls</h3>
+            <p style="font-size: 13px; color: #7a6a5e; margin-bottom: 20px;">Ei features gulo off korle meeting e keu use korte parbe na.</p>
+            
+            <div class="feature-toggle">
+                <span style="color: #4a3b32; font-weight: 500;">Allow Chat Messages</span>
+                <label class="switch">
+                    <input type="checkbox" id="toggleChat" checked onchange="window.updateHostFeature('chat', this.checked)">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <div class="feature-toggle">
+                <span style="color: #4a3b32; font-weight: 500;">Allow Screen Share</span>
+                <label class="switch">
+                    <input type="checkbox" id="toggleScreenShare" checked onchange="window.updateHostFeature('screenShare', this.checked)">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <div class="feature-toggle">
+                <span style="color: #4a3b32; font-weight: 500;">Allow Call Recording</span>
+                <label class="switch">
+                    <input type="checkbox" id="toggleRecord" checked onchange="window.updateHostFeature('record', this.checked)">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <div class="feature-toggle">
+                <span style="color: #4a3b32; font-weight: 500;">Allow Emoji Reactions</span>
+                <label class="switch">
+                    <input type="checkbox" id="toggleReactions" checked onchange="window.updateHostFeature('reactions', this.checked)">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <div class="modal-buttons" style="margin-top: 25px;">
+                <button onclick="document.getElementById('hostControlsModal').style.display='none'" style="background: #4a3b32; color: #fff;">Done</button>
             </div>
         </div>
     </div>
@@ -1186,51 +1330,55 @@
         document.getElementById('manifest-link').setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(manifestJson));
 
         /* =========================================================================
-           MOBILE DEVICE CHECK & FORCE DOWNLOAD
+           MOBILE DEVICE CHECK & FORCE DOWNLOAD LOGIC
            ========================================================================= */
         const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         
-        // App ba WebView te cholche ki na check korar advanced logic
         const isAndroidWebView = /wv/.test(navigator.userAgent) || (/Android/.test(navigator.userAgent) && /Version\/[\d\.]+/.test(navigator.userAgent));
         const isIOSWebView = /(iPhone|iPod|iPad).*AppleWebKit(?!.*Safari)/i.test(navigator.userAgent);
         const isPWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-        
-        // Local theke (WebIntoApp) khulle protocol file: hoy
         const isLocalFile = window.location.protocol === 'file:';
 
         const isAppMode = isAndroidWebView || isIOSWebView || isPWA || isLocalFile;
+        const urlParams = new URLSearchParams(window.location.search);
+        let hostId = urlParams.get('room');
 
         if (isMobileDevice && !isAppMode) {
-            // Jodi mobile browser hoy (app na hoy), tahole force download screen show korbo
             document.getElementById('setupOverlay').style.display = 'none';
             document.getElementById('mainWorkspace').style.display = 'none';
             document.getElementById('controlsBar').style.display = 'none';
             document.getElementById('mobileDownloadScreen').style.display = 'flex';
+            
+            if(hostId) {
+                document.getElementById('mobileInviteNotice').style.display = 'block';
+                document.getElementById('mobileCopyLinkInput').value = window.location.href;
+            }
         }
 
+        // FIXED MOBILE DOWNLOAD LOGIC (Forcing direct navigation instead of background click)
         window.downloadAPK = function() {
             window.showToast("APK ডাউনলোড শুরু হচ্ছে...");
-            
             const apkDownloadUrl = "https://drive.google.com/uc?export=download&id=1plozQb4xO-7Gjd6uJhNKEqVQkXQpobZA"; 
             
-            const a = document.createElement('a');
-            a.href = apkDownloadUrl;
-            a.download = "MeetuApp.apk"; 
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            // This is much stronger for mobile browsers to trigger download
+            window.location.href = apkDownloadUrl;
+        };
+        
+        window.copyMobileLink = function() {
+            const copyText = document.getElementById("mobileCopyLinkInput");
+            copyText.select();
+            document.execCommand("copy");
+            window.showToast("লিংক কপি করা হয়েছে! অ্যাপে গিয়ে পেস্ট করুন।");
         };
 
         // ONLY RUN APP LOGIC IF DESKTOP OR INSTALLED APK/WEBVIEW
         if(!isMobileDevice || isAppMode) {
 
-            // Dekhiye din setup overlay
             document.getElementById('setupOverlay').style.display = 'flex';
 
             /* =========================================================================
-               APP VARIABLES
+               APP VARIABLES & STATE
                ========================================================================= */
-            // Using 5 public Google STUN servers for robust cross-network connection
             const peer = new Peer({ 
                 config: { 
                     'iceServers': [ 
@@ -1250,7 +1398,6 @@
 
             let peers = {}; 
             let myId = null; 
-            let hostId = null; 
             let isHost = false; 
             let isCohost = false;
             
@@ -1272,8 +1419,14 @@
             let myPfp = localStorage.getItem('meetu_pfp') || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%238ab4f8'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>";
             let pendingGuest = null;
 
-            const urlParams = new URLSearchParams(window.location.search);
-            hostId = urlParams.get('room');
+            // NEW: DYNAMIC MEETING FEATURES STATE
+            // These reset to true every time a new meeting starts/reloads
+            let roomFeatures = {
+                chat: true,
+                screenShare: true,
+                record: true,
+                reactions: true
+            };
 
             document.getElementById('userNameInput').value = myName;
             document.getElementById('setupAvatarPreview').src = myPfp;
@@ -1286,7 +1439,7 @@
             const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             
             /* =========================================================================
-               FUNCTIONS
+               SOUNDS & NOTIFICATIONS
                ========================================================================= */
             window.playTone = function(type) {
                 if (audioCtx.state === 'suspended') { 
@@ -1306,11 +1459,9 @@
                     osc.frequency.setValueAtTime(440, now); 
                     osc.frequency.setValueAtTime(554.37, now + 0.1); 
                     osc.frequency.setValueAtTime(659.25, now + 0.2);
-                    
                     gain.gain.setValueAtTime(0, now); 
                     gain.gain.linearRampToValueAtTime(0.3, now + 0.05); 
                     gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
-                    
                     osc.start(now); 
                     osc.stop(now + 0.5);
                 } 
@@ -1318,34 +1469,27 @@
                     osc.type = 'sine'; 
                     osc.frequency.setValueAtTime(659.25, now); 
                     osc.frequency.setValueAtTime(523.25, now + 0.15);
-                    
                     gain.gain.setValueAtTime(0.3, now); 
                     gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
-                    
                     osc.start(now); 
                     osc.stop(now + 0.4);
                 } 
                 else if (type === 'request') {
                     osc.type = 'triangle'; 
                     osc.frequency.setValueAtTime(600, now); 
-                    
                     gain.gain.setValueAtTime(0.3, now); 
                     gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-                    
                     osc.frequency.setValueAtTime(600, now + 0.15); 
                     gain.gain.setValueAtTime(0.3, now + 0.15); 
                     gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
-                    
                     osc.start(now); 
                     osc.stop(now + 0.3);
                 } 
                 else if (type === 'chat') {
                     osc.type = 'sine'; 
                     osc.frequency.setValueAtTime(800, now); 
-                    
                     gain.gain.setValueAtTime(0.1, now); 
                     gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-                    
                     osc.start(now); 
                     osc.stop(now + 0.1);
                 } 
@@ -1353,12 +1497,19 @@
                     osc.type = 'sine'; 
                     osc.frequency.setValueAtTime(1000, now); 
                     osc.frequency.exponentialRampToValueAtTime(400, now + 0.2);
-                    
                     gain.gain.setValueAtTime(0.1, now); 
                     gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
-                    
                     osc.start(now); 
                     osc.stop(now + 0.2);
+                }
+                else if (type === 'cohost') {
+                    osc.type = 'triangle'; 
+                    osc.frequency.setValueAtTime(500, now); 
+                    osc.frequency.setValueAtTime(700, now + 0.1); 
+                    gain.gain.setValueAtTime(0.2, now); 
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now); 
+                    osc.stop(now + 0.3);
                 }
             };
 
@@ -1366,31 +1517,28 @@
                 const t = document.getElementById('toast');
                 t.innerText = msg; 
                 t.style.display = 'block';
-                
                 setTimeout(() => { 
                     t.style.display = 'none'; 
                 }, 3000);
             };
 
+            /* =========================================================================
+               USER SETUP
+               ========================================================================= */
             window.handlePfpUpload = function(event) {
                 const file = event.target.files[0]; 
-                
-                if(!file) {
-                    return;
-                }
+                if(!file) { return; }
                 
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const img = new Image(); 
-                    
                     img.onload = function() {
                         const canvas = document.createElement('canvas'); 
                         canvas.width = 150; 
                         canvas.height = 150 * (img.height/img.width);
-                        
                         canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-                        myPfp = canvas.toDataURL('image/jpeg', 0.8); 
                         
+                        myPfp = canvas.toDataURL('image/jpeg', 0.8); 
                         localStorage.setItem('meetu_pfp', myPfp);
                         document.getElementById('setupAvatarPreview').src = myPfp;
                     }
@@ -1401,7 +1549,6 @@
 
             window.joinByLink = function() {
                 const link = document.getElementById('joinLinkInput').value.trim();
-                
                 if(link) {
                     try {
                         const url = new URL(link);
@@ -1423,9 +1570,11 @@
                 window.showToast("Copied to clipboard"); 
             };
 
+            /* =========================================================================
+               DEVICE SELECTION & SETTINGS
+               ========================================================================= */
             window.openSettings = async function() { 
                 document.getElementById('settingsModal').style.display = 'flex'; 
-                
                 try {
                     const devices = await navigator.mediaDevices.enumerateDevices();
                     const audioOutputs = devices.filter(device => device.kind === 'audiooutput');
@@ -1451,13 +1600,9 @@
 
             window.changeAudioOutput = async function() {
                 const deviceId = document.getElementById('audioOutputSelect').value; 
-                
-                if(!deviceId) {
-                    return;
-                }
+                if(!deviceId) { return; }
                 
                 localStorage.setItem('meetu_audio_out', deviceId);
-                
                 const videoElements = document.querySelectorAll('.video-box video');
                 
                 for(const vid of videoElements) {
@@ -1469,7 +1614,6 @@
                         }
                     }
                 }
-                
                 window.showToast("Audio output change kora hoyeche");
             };
 
@@ -1507,13 +1651,13 @@
                         filtered.forEach(d => {
                             const btn = document.createElement('button'); 
                             const icon = kind === 'audioinput' ? 'mic' : 'videocam';
-                            
                             let isSelected = false;
                             
-                            if(kind === 'audioinput' && d.deviceId === activeAudioDeviceId) {
-                                isSelected = true;
-                            } else if(kind === 'videoinput' && d.deviceId === activeVideoDeviceId) {
-                                isSelected = true;
+                            if(kind === 'audioinput' && d.deviceId === activeAudioDeviceId) { 
+                                isSelected = true; 
+                            } 
+                            else if(kind === 'videoinput' && d.deviceId === activeVideoDeviceId) { 
+                                isSelected = true; 
                             }
                             
                             btn.innerHTML = `<span class="material-symbols-outlined" style="font-size:18px">${icon}</span> ${d.label || 'Default Device'}`;
@@ -1526,7 +1670,6 @@
                                 window.switchDevice(kind, d.deviceId); 
                                 menu.style.display = 'none'; 
                             }; 
-                            
                             menu.appendChild(btn);
                         });
                     }
@@ -1542,7 +1685,6 @@
                             menu.style.display = 'none'; 
                             window.openSettings(); 
                         }; 
-                        
                         menu.appendChild(outBtn);
                     }
                     
@@ -1550,8 +1692,8 @@
                     menu.style.display = 'block'; 
                     menu.style.left = rect.left + 'px';
                     
-                    if(window.innerWidth <= 600) { 
-                        menu.style.bottom = '95px'; 
+                    if(window.innerWidth <= 768) { 
+                        menu.style.bottom = '100px'; 
                     } else { 
                         menu.style.bottom = (window.innerHeight - rect.top + 10) + 'px'; 
                     }
@@ -1582,9 +1724,10 @@
                     let newTrack = kind === 'audioinput' ? stream.getAudioTracks()[0] : stream.getVideoTracks()[0];
                     let oldTrack = kind === 'audioinput' ? localStream.getAudioTracks()[0] : localStream.getVideoTracks()[0];
                     
-                    if(oldTrack) {
+                    if(oldTrack) { 
                         localStream.removeTrack(oldTrack); 
                     }
+                    
                     localStream.addTrack(newTrack);
 
                     Object.values(peers).forEach(p => {
@@ -1619,6 +1762,9 @@
                 }
             };
 
+            /* =========================================================================
+               NETWORK LOGIC (PEER JS)
+               ========================================================================= */
             peer.on('open', id => {
                 myId = id;
                 document.getElementById('loadingStatus').style.display = 'none';
@@ -1634,7 +1780,6 @@
             });
 
             window.initiateSetup = async function() {
-                // Check connection security
                 if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && window.location.protocol !== 'file:') {
                     window.showToast("Sotorkobarta: Apnar connection secure (HTTPS) noy, tai Mic/Camera block hote pare!");
                 }
@@ -1645,64 +1790,65 @@
                     myName = nameInp; 
                     localStorage.setItem('meetu_name', myName); 
                 }
-                if(!myName) {
-                    myName = isHost ? "Host" : "Guest";
+                
+                if(!myName) { 
+                    myName = isHost ? "Host" : "Guest"; 
                 }
 
+                localStream = new MediaStream();
+
                 try {
-                    // Get media directly to prevent delay (Strong constraint for good quality)
-                    localStream = await navigator.mediaDevices.getUserMedia({ 
-                        audio: { echoCancellation: true, noiseSuppression: true },
-                        video: { facingMode: "user" } 
-                    });
+                    const audioStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+                    localStream.addTrack(audioStream.getAudioTracks()[0]); 
+                    isMicOn = true; 
+                    hasRealAudio = true; 
+                    activeAudioDeviceId = audioStream.getAudioTracks()[0].getSettings().deviceId;
                 } catch (err) {
-                    console.warn("Strict audio failed, trying loose constraints.");
                     try {
-                        // Fallback to basic constraint if strict constraint rejected
-                        localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+                        const fallbackAudio = await navigator.mediaDevices.getUserMedia({ audio: true });
+                        localStream.addTrack(fallbackAudio.getAudioTracks()[0]); 
+                        isMicOn = true; 
+                        hasRealAudio = true; 
+                        activeAudioDeviceId = fallbackAudio.getAudioTracks()[0].getSettings().deviceId;
                     } catch(fallbackErr) {
-                        console.error("Complete media block.");
-                        window.showToast("Dristi Akarshon: Browser theke Camera/Mic er permission denni!");
-                        
-                        // Provide fake stream if completely blocked
-                        localStream = new MediaStream();
                         const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                        localStream.addTrack(ctx.createMediaStreamDestination().stream.getAudioTracks()[0]);
-                        
-                        const canvas = document.createElement('canvas');
-                        localStream.addTrack(canvas.captureStream().getVideoTracks()[0]);
+                        localStream.addTrack(ctx.createMediaStreamDestination().stream.getAudioTracks()[0]); 
+                        isMicOn = false; 
+                        hasRealAudio = false;
                     }
                 }
 
-                // Check what we successfully got
-                if(localStream.getAudioTracks().length > 0) {
-                    isMicOn = true; 
-                    hasRealAudio = true;
-                    activeAudioDeviceId = localStream.getAudioTracks()[0].getSettings().deviceId;
-                } else {
-                    isMicOn = false;
-                }
-
-                if(localStream.getVideoTracks().length > 0) {
+                try {
+                    const videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+                    localStream.addTrack(videoStream.getVideoTracks()[0]); 
                     isCamOn = true; 
-                    hasRealVideo = true;
-                    activeVideoDeviceId = localStream.getVideoTracks()[0].getSettings().deviceId;
-                } else {
-                    isCamOn = false;
+                    hasRealVideo = true; 
+                    activeVideoDeviceId = videoStream.getVideoTracks()[0].getSettings().deviceId;
+                } catch(err) {
+                    const canvas = document.createElement('canvas'); 
+                    localStream.addTrack(canvas.captureStream().getVideoTracks()[0]); 
+                    isCamOn = false; 
+                    hasRealVideo = false;
                 }
 
                 updateControlsUI();
 
-                // Hide setup, show workspace
                 document.getElementById('setupOverlay').style.display = 'none';
                 document.getElementById('mainWorkspace').style.display = 'flex';
                 document.getElementById('controlsBar').style.display = 'flex';
                 document.getElementById('meetingInfo').style.display = 'block';
                 
-                // Build local video component
                 createVideoBox('local', myName + " (You)", myPfp, true);
                 document.getElementById('video_local').srcObject = localStream;
                 toggleVideoMuteState('local', isCamOn);
+
+                // Show Admin panel if I am the host
+                if(isHost || isCohost) {
+                    document.getElementById('hostSettingsBtn').style.display = 'flex';
+                }
+
+                // Apply initial local features
+                applyRoomFeaturesToUI();
 
                 if(isHost) {
                     const link = window.location.origin + window.location.pathname + "?room=" + myId;
@@ -1730,7 +1876,6 @@
                 conn.on('close', () => removePeer(conn.peer));
             });
 
-            // The Brain of Data Messaging between clients
             function handleData(peerId, data, conn) {
                 if (data.type === 'request_join') {
                     if(isHost || isCohost) {
@@ -1747,7 +1892,7 @@
                     }
                 } 
                 else if (data.type === 'cohost_admitted_someone') { 
-                    if(isHost) {
+                    if(isHost) { 
                         completeAdmitProcess(data.guestData); 
                     }
                 }
@@ -1755,10 +1900,14 @@
                     window.playTone('join'); 
                     window.showToast("Meeting e join korechen");
                     
-                    // Connect to host
+                    // Accept room features set by Host
+                    if(data.features) {
+                        roomFeatures = data.features;
+                        applyRoomFeaturesToUI();
+                    }
+
                     setupPeer(hostId, data.hostName, data.hostPfp, true);
                     
-                    // Connect to everyone else in the room
                     data.peersList.forEach(p => { 
                         if(p.id !== myId) {
                             setupPeer(p.id, p.name, p.pfp, true); 
@@ -1785,10 +1934,33 @@
                 else if (data.type === 'reaction') { 
                     showFloatingReaction(data.emoji); 
                 }
+                else if (data.type === 'feature_update') {
+                    roomFeatures = data.features;
+                    applyRoomFeaturesToUI();
+                    window.showToast("Host meeting settings update korechen");
+                }
                 else if (data.type === 'promoted_to_cohost') { 
                     isCohost = true; 
                     window.playTone('cohost'); 
                     window.showToast("Apnake Co-host banano hoyeche!"); 
+                    document.getElementById('hostSettingsBtn').style.display = 'flex'; // Give access to host settings
+                    updateParticipantsList();
+                }
+                else if (data.type === 'promoted_to_host') { 
+                    isHost = true; 
+                    isCohost = false;
+                    hostId = myId;
+                    window.playTone('cohost'); 
+                    window.showToast("Apnake meeting er Admin (Host) banano hoyeche!"); 
+                    document.getElementById('hostSettingsBtn').style.display = 'flex';
+                    updateParticipantsList();
+                }
+                else if (data.type === 'host_transferred') {
+                    hostId = data.newHostId;
+                    if(myId !== data.newHostId) {
+                        window.showToast("Admin permission change hoyeche.");
+                    }
+                    updateParticipantsList();
                 }
                 else if (data.type === 'host_ended_call') { 
                     window.showToast("Host meeting shesh korechen"); 
@@ -1796,10 +1968,12 @@
                 }
             }
 
-            // Host button click for Admit/Deny
             window.handleAdmit = function(admit) {
                 document.getElementById('admitModal').style.display = 'none'; 
-                if(!pendingGuest) return;
+                
+                if(!pendingGuest) {
+                    return;
+                }
                 
                 if(admit) {
                     if(isHost) {
@@ -1816,13 +1990,19 @@
                 pendingGuest = null;
             };
 
-            // Formal process to add new guest to mesh network
             function completeAdmitProcess(guest) {
                 const currentPeersList = Object.keys(peers).map(id => {
                     return { id: id, name: peers[id].name, pfp: peers[id].pfp };
                 });
                 
-                guest.conn.send({ type: 'accepted', hostName: myName, hostPfp: myPfp, peersList: currentPeersList });
+                guest.conn.send({ 
+                    type: 'accepted', 
+                    hostName: myName, 
+                    hostPfp: myPfp, 
+                    peersList: currentPeersList,
+                    features: roomFeatures // Send current features to new guest
+                });
+                
                 broadcast({ type: 'new_peer_expect', guest: { id: guest.id, name: guest.name, pfp: guest.pfp } });
                 
                 setupPeer(guest.id, guest.name, guest.pfp, false, guest.conn);
@@ -1847,10 +2027,10 @@
                     const call = peer.call(id, localStream); 
                     handleCallStream(call, id, name, pfp); 
                 }
+                
                 updateParticipantsList();
             }
 
-            // Answer incoming calls
             peer.on('call', call => {
                 const id = call.peer; 
                 const pInfo = peers[id] || { name: "User", pfp: "" };
@@ -1867,12 +2047,12 @@
                         window.playTone('join'); 
                         window.showToast(name + " joined"); 
                     }
+                    
                     const vid = document.getElementById('video_' + id);
                     vid.srcObject = remoteStream; 
                     
-                    // Ensure video plays regardless of autoplay policy
                     vid.onloadedmetadata = () => { 
-                        vid.play().catch(e => console.log("Play policy blocked audio", e)); 
+                        vid.play().catch(e => console.log("Play policy error", e)); 
                     };
                 });
                 
@@ -1887,6 +2067,7 @@
                     }
                     window.playTone('leave'); 
                 }
+                
                 delete peers[id]; 
                 updateParticipantsList();
             }
@@ -1900,21 +2081,84 @@
             }
 
             /* =========================================================================
+               NEW: DYNAMIC HOST CONTROLS (ENABLE/DISABLE FEATURES)
+               ========================================================================= */
+            window.openHostControls = function() {
+                // Ensure UI toggles match actual state
+                document.getElementById('toggleChat').checked = roomFeatures.chat;
+                document.getElementById('toggleScreenShare').checked = roomFeatures.screenShare;
+                document.getElementById('toggleRecord').checked = roomFeatures.record;
+                document.getElementById('toggleReactions').checked = roomFeatures.reactions;
+                
+                document.getElementById('hostControlsModal').style.display = 'flex';
+            };
+
+            window.updateHostFeature = function(featureKey, isEnabled) {
+                roomFeatures[featureKey] = isEnabled;
+                
+                // Broadcast change to everyone
+                broadcast({ type: 'feature_update', features: roomFeatures });
+                
+                // Apply locally for myself
+                applyRoomFeaturesToUI();
+            };
+
+            function applyRoomFeaturesToUI() {
+                // 1. Chat
+                if (roomFeatures.chat || isHost || isCohost) {
+                    document.getElementById('chatToggleBtn').style.display = 'flex';
+                    document.getElementById('chatInputArea').style.display = 'flex';
+                } else {
+                    document.getElementById('chatToggleBtn').style.display = 'none';
+                    document.getElementById('chatInputArea').style.display = 'none';
+                    document.getElementById('chatSidebar').classList.remove('open');
+                }
+
+                // 2. Screen Share
+                if (roomFeatures.screenShare || isHost || isCohost) {
+                    document.getElementById('screenBtn').style.display = 'flex';
+                } else {
+                    document.getElementById('screenBtn').style.display = 'none';
+                    if (isScreenSharing && !isHost && !isCohost) {
+                        window.toggleScreen(); // force turn off
+                    }
+                }
+
+                // 3. Recording
+                if (roomFeatures.record || isHost || isCohost) {
+                    document.getElementById('recordBtn').style.display = 'flex';
+                } else {
+                    document.getElementById('recordBtn').style.display = 'none';
+                    if(mediaRecorder && mediaRecorder.state !== 'inactive' && !isHost && !isCohost) {
+                        window.toggleRecord(); // force stop
+                    }
+                }
+
+                // 4. Reactions
+                if (roomFeatures.reactions || isHost || isCohost) {
+                    document.getElementById('reactionToggleBtn').style.display = 'flex';
+                } else {
+                    document.getElementById('reactionToggleBtn').style.display = 'none';
+                    document.getElementById('reactionMenu').style.display = 'none';
+                }
+            }
+
+
+            /* =========================================================================
                MEDIA CONTROLS
                ========================================================================= */
             window.toggleMic = async function() {
                 if(!localStream) return;
+                
                 const audioTrack = localStream.getAudioTracks()[0];
                 
-                // Fast toggle if hardware is active
                 if(hasRealAudio && audioTrack) {
                     isMicOn = !isMicOn;
                     audioTrack.enabled = isMicOn; 
-                    updateControlsUI();
+                    updateControlsUI(); 
                     return;
                 }
 
-                // Request permission fallback
                 try {
                     const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
                     const newTrack = stream.getAudioTracks()[0];
@@ -1944,21 +2188,19 @@
 
             window.toggleCam = async function() {
                 if(!localStream) return;
+                
                 const videoTrack = localStream.getVideoTracks()[0];
                 
-                // Fast toggle
                 if(hasRealVideo && videoTrack) {
                     isCamOn = !isCamOn;
                     videoTrack.enabled = isCamOn; 
                     
                     toggleVideoMuteState('local', isCamOn);
                     broadcast({ type: 'cam_state', state: isCamOn });
-                    
-                    updateControlsUI();
+                    updateControlsUI(); 
                     return;
                 }
 
-                // Request permission fallback
                 try {
                     const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
                     const newTrack = stream.getVideoTracks()[0];
@@ -1982,8 +2224,8 @@
                     hasRealVideo = true; 
                     isCamOn = true;
                     
-                    toggleVideoMuteState('local', true);
-                    broadcast({ type: 'cam_state', state: true });
+                    toggleVideoMuteState('local', true); 
+                    broadcast({ type: 'cam_state', state: true }); 
                     updateControlsUI();
                 } catch(e) { 
                     window.showToast("Cam permission denied"); 
@@ -1993,12 +2235,7 @@
             window.toggleScreen = async function() {
                 if (!isScreenSharing) {
                     try {
-                        const screenStream = await navigator.mediaDevices.getDisplayMedia({ 
-                            video: { displaySurface: "browser" }, 
-                            preferCurrentTab: true, 
-                            audio: true 
-                        });
-                        
+                        const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: "browser" }, preferCurrentTab: true, audio: true });
                         const screenTrack = screenStream.getVideoTracks()[0];
                         
                         Object.values(peers).forEach(p => {
@@ -2013,10 +2250,10 @@
                         document.getElementById('video_local').srcObject = new MediaStream([screenTrack]);
                         document.getElementById('video_local').classList.add('screen-share');
                         
-                        toggleVideoMuteState('local', true);
+                        toggleVideoMuteState('local', true); 
                         broadcast({ type: 'cam_state', state: true });
                         
-                        isScreenSharing = true;
+                        isScreenSharing = true; 
                         document.getElementById('screenBtn').classList.add('active');
                         
                         screenTrack.onended = () => {
@@ -2026,9 +2263,7 @@
                         window.showToast("Ei mobile e screen share support kore na. PC try korun."); 
                     }
                 } else {
-                    // Revert to camera
                     const camTrack = localStream.getVideoTracks()[0];
-                    
                     Object.values(peers).forEach(p => {
                         if(p.call) {
                             const sender = p.call.peerConnection.getSenders().find(s => s.track.kind === 'video');
@@ -2041,10 +2276,10 @@
                     document.getElementById('video_local').srcObject = localStream;
                     document.getElementById('video_local').classList.remove('screen-share');
                     
-                    toggleVideoMuteState('local', isCamOn);
+                    toggleVideoMuteState('local', isCamOn); 
                     broadcast({ type: 'cam_state', state: isCamOn });
                     
-                    isScreenSharing = false;
+                    isScreenSharing = false; 
                     document.getElementById('screenBtn').classList.remove('active');
                 }
             };
@@ -2077,12 +2312,10 @@
                         mediaRecorder.onstop = () => {
                             const blob = new Blob(recordedChunks, { type: 'video/webm' });
                             const url = URL.createObjectURL(blob);
-                            
                             const a = document.createElement('a'); 
                             a.href = url;
                             a.download = 'Meetu_Record_' + new Date().getTime() + '.webm'; 
                             a.click();
-                            
                             recordedChunks = [];
                             document.getElementById('recordBtn').classList.remove('active');
                             window.showToast("Recording save kora hoyeche");
@@ -2091,7 +2324,6 @@
                         mediaRecorder.start(); 
                         document.getElementById('recordBtn').classList.add('active'); 
                         window.showToast("Recording shuru hoyeche");
-                        
                     } catch(e) { 
                         window.showToast("Recording cancel kora hoyeche"); 
                     }
@@ -2101,27 +2333,29 @@
             };
 
             function updateControlsUI() {
-                const micPill = document.getElementById('micPill');
+                const micPill = document.getElementById('micPill'); 
                 const micIcon = document.getElementById('micIcon');
                 
                 if(isMicOn) { 
                     micPill.classList.remove('off'); 
                     micPill.classList.add('active'); 
                     micIcon.innerText = 'mic'; 
-                } else { 
+                } 
+                else { 
                     micPill.classList.add('off'); 
                     micPill.classList.remove('active'); 
                     micIcon.innerText = 'mic_off'; 
                 }
                 
-                const camPill = document.getElementById('camPill');
+                const camPill = document.getElementById('camPill'); 
                 const camIcon = document.getElementById('camIcon');
                 
                 if(isCamOn) { 
                     camPill.classList.remove('off'); 
                     camPill.classList.add('active'); 
                     camIcon.innerText = 'videocam'; 
-                } else { 
+                } 
+                else { 
                     camPill.classList.add('off'); 
                     camPill.classList.remove('active'); 
                     camIcon.innerText = 'videocam_off'; 
@@ -2133,23 +2367,18 @@
                ========================================================================= */
             function createVideoBox(id, name, pfp, isLocal) {
                 const grid = document.getElementById('videoGrid');
-                
                 const box = document.createElement('div'); 
                 box.className = 'video-box'; 
                 box.id = 'box_' + id;
                 
-                // Important: Local video is muted locally, Remote is unmuted
                 const vidHTML = isLocal ? `<video id="video_${id}" autoplay playsinline muted></video>` : `<video id="video_${id}" autoplay playsinline></video>`;
                 
                 box.innerHTML = `
                     <img id="fallback_${id}" class="avatar-fallback" src="${pfp}" />
                     ${vidHTML}
-                    <div class="video-overlay">
-                        <span class="material-symbols-outlined" style="font-size:16px;">account_circle</span> ${name}
-                    </div>
+                    <div class="video-overlay"><span class="material-symbols-outlined" style="font-size:16px;">account_circle</span> ${name}</div>
                 `;
 
-                // Setup Co-host menu for Host
                 if(isHost && !isLocal) {
                     const menuBtn = document.createElement('div'); 
                     menuBtn.className = 'context-menu-btn'; 
@@ -2158,7 +2387,10 @@
                     const menu = document.createElement('div'); 
                     menu.className = 'user-menu'; 
                     menu.id = 'menu_' + id;
-                    menu.innerHTML = `<button onclick="window.makeCohost('${id}')"><span class="material-symbols-outlined">shield_person</span> Make Co-host</button>`;
+                    menu.innerHTML = `
+                        <button onclick="window.makeCohost('${id}')"><span class="material-symbols-outlined">shield_person</span> Make Co-host</button>
+                        <button onclick="window.makeAdmin('${id}')"><span class="material-symbols-outlined">admin_panel_settings</span> Make Admin (Host)</button>
+                    `;
                     
                     menuBtn.onclick = (e) => { 
                         e.stopPropagation(); 
@@ -2181,13 +2413,19 @@
                 }
             }
 
-            window.makeCohost = function(peerId) {
+            // NEW: Make Admin Feature
+            window.makeAdmin = function(peerId) {
                 if(peers[peerId] && peers[peerId].conn) {
-                    peers[peerId].conn.send({ type: 'promoted_to_cohost' }); 
-                    peers[peerId].isCohost = true;
+                    peers[peerId].conn.send({ type: 'promoted_to_host' }); 
+                    isHost = false; 
+                    isCohost = true;
+                    hostId = peerId;
                     
-                    window.showToast(peers[peerId].name + " ekhon co-host"); 
                     document.getElementById('menu_' + peerId).style.display = 'none';
+                    window.showToast("Apni " + peers[peerId].name + " ke Admin baniyechen!");
+                    updateParticipantsList();
+                    
+                    broadcast({ type: 'host_transferred', newHostId: peerId });
                 }
             };
 
@@ -2236,7 +2474,7 @@
                 let html = `
                     <div style="display:flex; align-items:center; gap:10px;">
                         <img src="${myPfp}" style="width:30px;height:30px;border-radius:50%;object-fit:cover;"> 
-                        <span>${myName} (You) ${isHost?'[Host]':(isCohost?'[Co-host]':'')}</span>
+                        <span>${myName} (You) ${isHost?'[Admin]':(isCohost?'[Co-host]':'')}</span>
                     </div>
                 `;
                 
@@ -2245,7 +2483,7 @@
                     html += `
                         <div style="display:flex; align-items:center; gap:10px;">
                             <img src="${p.pfp}" style="width:30px;height:30px;border-radius:50%;object-fit:cover;"> 
-                            <span>${p.name} ${id===hostId?'[Host]':(p.isCohost?'[Co-host]':'')}</span>
+                            <span>${p.name} ${id===hostId?'[Admin]':(p.isCohost?'[Co-host]':'')}</span>
                         </div>
                     `;
                 });
@@ -2269,7 +2507,6 @@
 
             function showFloatingReaction(emoji) {
                 window.playTone('reaction'); 
-                
                 const burstCount = 6; 
                 
                 for(let i=0; i<burstCount; i++) {
@@ -2289,7 +2526,6 @@
                         setTimeout(() => { 
                             el.remove(); 
                         }, randomDuration * 1000);
-                        
                     }, i * 150);
                 }
             }
@@ -2301,16 +2537,17 @@
                 if(isHost && !forced) { 
                     broadcast({ type: 'host_ended_call' }); 
                 } 
-                
                 window.playTone('leave');
                 
                 if(localStream) {
                     localStream.getTracks().forEach(track => track.stop());
                 }
+                
                 if(mediaRecorder && mediaRecorder.state !== 'inactive') {
                     mediaRecorder.stop();
                 }
                 
+                // Erpor default UI te ferot asbe
                 setTimeout(() => { 
                     window.location.href = window.location.origin + window.location.pathname; 
                 }, 500);
